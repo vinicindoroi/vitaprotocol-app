@@ -42,6 +42,7 @@ function ProtocolDayView() {
   }
 
   async function markDone() {
+    if (!profile) return;
     setSaving(true);
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) { setSaving(false); return; }

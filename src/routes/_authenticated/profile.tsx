@@ -37,6 +37,7 @@ function ProfilePage() {
   }
 
   async function changePassword() {
+    if (!profile) return;
     const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
