@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      day_completions: {
+        Row: {
+          completed_at: string
+          day_number: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          day_number: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          day_number?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          country: string
+          current_day: number
+          dominant_hormone: string | null
+          email: string
+          full_name: string
+          id: string
+          joined_at: string
+          last_active: string
+          plan: string
+          quiz_completed: boolean
+        }
+        Insert: {
+          country?: string
+          current_day?: number
+          dominant_hormone?: string | null
+          email?: string
+          full_name?: string
+          id: string
+          joined_at?: string
+          last_active?: string
+          plan?: string
+          quiz_completed?: boolean
+        }
+        Update: {
+          country?: string
+          current_day?: number
+          dominant_hormone?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          joined_at?: string
+          last_active?: string
+          plan?: string
+          quiz_completed?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
