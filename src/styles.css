@@ -163,3 +163,15 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-up { animation: fadeUp 280ms ease-out both; }
+
+a[href*="lovable.dev"],
+iframe[src*="lovable.dev"],
+div[style*="Edit with Lovable"],
+.lovable-badge {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+}
