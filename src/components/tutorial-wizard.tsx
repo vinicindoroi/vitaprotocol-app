@@ -86,7 +86,15 @@ const DASHBOARD_STEPS: TourStep[] = [
 
 type Rect = { top: number; left: number; width: number; height: number };
 
-export function TutorialWizard() {
+export function TutorialWizard({
+  steps = DASHBOARD_STEPS,
+  storageKey = DEFAULT_STORAGE_KEY,
+}: {
+  steps?: TourStep[];
+  storageKey?: string;
+} = {}) {
+  const STEPS = steps;
+  const STORAGE_KEY = storageKey;
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
