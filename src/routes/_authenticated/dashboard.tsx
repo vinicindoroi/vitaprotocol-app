@@ -4,6 +4,7 @@ import { useAllStepCompletions } from "@/hooks/use-day-steps";
 import { DAY_STEPS, STEP_ORDER, STEP_META, type StepKey } from "@/data/protocol-steps";
 import { getStage } from "@/data/journey";
 import { UPGRADE_URL } from "@/lib/config";
+import { TutorialWizard } from "@/components/tutorial-wizard";
 import { ArrowRight, Lock, Check, Salad, Sparkles, Footprints, Moon, Droplet } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -47,6 +48,7 @@ function Dashboard() {
 
   return (
     <div className="px-5 pt-12 pb-6 space-y-7">
+      <TutorialWizard />
       {/* Saludo — editorial */}
       <header className="animate-fade-up">
         <p
