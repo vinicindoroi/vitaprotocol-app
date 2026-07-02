@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, ArrowRight, Salad, Compass, Sparkles } from "lucide-react";
+import { X, ArrowRight, Salad, Compass, Sparkles, Hand, HelpCircle, CheckCircle2, Home, Calendar } from "lucide-react";
 
-const STORAGE_KEY = "vp.tutorial.v1";
+const STORAGE_KEY = "vp.tutorial.v2";
 
 type Step = {
   title: string;
@@ -14,29 +14,54 @@ type Step = {
 const STEPS: Step[] = [
   {
     eyebrow: "Bienvenida",
-    title: "Este no es un plan. Es un acompañamiento.",
-    body: "Durante 30 días vamos a enviar señales suaves a tu cuerpo. Sin prohibiciones, sin conteos. Solo pequeños gestos diarios que van reequilibrando tus hormonas.",
+    title: "Esto no es una dieta. Es un acompañamiento.",
+    body: "Durante 30 días vas a enviarle a tu cuerpo señales suaves. Sin prohibiciones, sin conteos. Solo pequeños gestos diarios que reequilibran tus hormonas.",
     Icon: Sparkles,
   },
   {
     eyebrow: "Tu día",
-    title: "Cinco pasos, todos los días.",
-    body: "Cada día vas a encontrar cinco pilares: Nutrir, Ritmo, Mover, Descanso y Agua. Tócalos cuando los completes. No importa el orden, importa la constancia.",
+    title: "Cinco pilares, todos los días.",
+    body: "En la pantalla de inicio verás cinco íconos: Nutrir, Ritmo, Mover, Descanso y Agua. Son los gestos del día. No importa el orden.",
     Icon: Salad,
+  },
+  {
+    eyebrow: "Cómo marcar",
+    title: "Toca el ícono cuando lo completes.",
+    body: "Al tocarlo, el círculo se vuelve verde con un check. Verás tu progreso del día en el porcentaje arriba a la derecha.",
+    Icon: Hand,
+  },
+  {
+    eyebrow: "Entender el porqué",
+    title: "“¿Por qué esto?” en cada paso.",
+    body: "Dentro del Protocolo diario, cada pilar tiene una nota corta que te explica la intención. Y el sello de Camila te da la mirada científica.",
+    Icon: HelpCircle,
+  },
+  {
+    eyebrow: "Cerrar el día",
+    title: "Un cierre suave al terminar.",
+    body: "Cuando completes los cinco pilares, la app te acompaña con una frase de Sofía. Ese es tu momento de reconocer lo que hiciste hoy.",
+    Icon: CheckCircle2,
   },
   {
     eyebrow: "Tu jornada",
     title: "Cinco etapas de transformación.",
-    body: "Diagnóstico, Reequilibrio, Activación, Transformación y Consolidación. Cada semana avanzas de etapa. En la Jornada puedes ver cuánto camino ya recorriste.",
+    body: "Diagnóstico, Reequilibrio, Activación, Transformación y Consolidación. En la pestaña Jornada ves en qué etapa estás y cuánto ya recorriste.",
     Icon: Compass,
   },
   {
-    eyebrow: "Camila y Sofía",
-    title: "Dos voces te acompañan.",
-    body: "Sofía te escribe con calma emocional. Camila te explica la ciencia detrás de cada gesto. Cuando dudes por qué algo importa, toca “¿Por qué esto?”.",
-    Icon: Sparkles,
+    eyebrow: "Moverte en la app",
+    title: "Todo vive en la barra inferior.",
+    body: "Hoy es tu día actual. Protocolo abre el detalle de cada día. Jornada muestra tu progreso. Compras trae la lista y Perfil tus datos.",
+    Icon: Home,
+  },
+  {
+    eyebrow: "Constancia",
+    title: "Un día no cuenta. Treinta transforman.",
+    body: "Vuelve cada mañana. La app te espera con el día correcto — no tienes que buscarlo. Al llegar al Día 30 verás tu comparación completa.",
+    Icon: Calendar,
   },
 ];
+
 
 export function TutorialWizard() {
   const [open, setOpen] = useState(false);
