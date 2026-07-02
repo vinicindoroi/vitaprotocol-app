@@ -38,28 +38,32 @@
 }
 
 :root {
-  --background: #FFFFFF;
-  --foreground: #1A1A1A;
+  --background: #FAFBF9;
+  --foreground: #1B3A2E;
   --card: #FFFFFF;
-  --card-foreground: #1A1A1A;
+  --card-foreground: #1B3A2E;
   --popover: #FFFFFF;
-  --popover-foreground: #1A1A1A;
+  --popover-foreground: #1B3A2E;
   --primary: #2D6A4F;
   --primary-foreground: #FFFFFF;
-  --primary-soft: #F0FAF5;
+  --primary-soft: #EAF2ED;
+  --primary-deep: #1B3A2E;
   --accent: #52B788;
   --accent-foreground: #FFFFFF;
-  --secondary: #F0FAF5;
+  --secondary: #EAF2ED;
   --secondary-foreground: #2D6A4F;
-  --muted: #F8FAF8;
-  --muted-foreground: #6B7280;
+  --muted: #F1F5F2;
+  --muted-foreground: #6B7B72;
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
   --success: #16A34A;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
+  --border: #E8EEE9;
+  --input: #E8EEE9;
   --ring: #2D6A4F;
-  --radius: 16px;
+  --radius: 24px;
+  --shadow-soft: 0 10px 40px -18px rgba(45,106,79,0.18);
+  --shadow-float: 0 20px 50px -20px rgba(27,58,46,0.18);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer base {
@@ -68,36 +72,38 @@
   body {
     font-family: var(--font-sans);
     font-size: 16px;
-    line-height: 1.7;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "cv11";
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; line-height: 1.25; }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.015em; line-height: 1.2; }
   button { font-family: var(--font-sans); }
+  ::selection { background: var(--primary-soft); color: var(--primary-deep); }
 }
 
-/* Signature element: left vertical green bar on every protocol content block */
+/* Signature element: left vertical green bar on protocol content blocks */
 @utility content-block {
   position: relative;
-  padding: 18px 18px 18px 22px;
+  padding: 20px 20px 20px 24px;
   background: var(--card);
-  border-radius: 12px;
+  border-radius: 20px;
   border: 1px solid var(--border);
 }
 @utility content-block-soft {
   position: relative;
-  padding: 18px 18px 18px 22px;
+  padding: 20px 20px 20px 24px;
   background: var(--primary-soft);
-  border-radius: 12px;
+  border-radius: 20px;
 }
 
 .content-block::before,
 .content-block-soft::before {
   content: "";
   position: absolute;
-  top: 14px;
-  bottom: 14px;
-  left: 8px;
+  top: 16px;
+  bottom: 16px;
+  left: 10px;
   width: 3px;
   border-radius: 2px;
   background: var(--primary);
@@ -106,40 +112,42 @@
 @utility card-soft {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-radius: 28px;
+  box-shadow: var(--shadow-soft);
 }
 
 @utility btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 20px;
-  border-radius: 10px;
+  min-height: 54px;
+  padding: 0 22px;
+  border-radius: 999px;
   background: var(--primary);
   color: var(--primary-foreground);
   font-weight: 600;
-  font-size: 16px;
-  transition: background 150ms ease, transform 80ms ease;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  transition: background 200ms var(--ease-out-soft), transform 120ms var(--ease-out-soft), box-shadow 200ms var(--ease-out-soft);
+  box-shadow: 0 10px 24px -12px rgba(45,106,79,0.5);
   width: 100%;
 }
-.btn-primary:hover { background: #245840; }
-.btn-primary:active { transform: scale(0.98); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary:hover { background: #245840; box-shadow: 0 14px 30px -12px rgba(45,106,79,0.6); }
+.btn-primary:active { transform: scale(0.985); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
 @utility btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 20px;
-  border-radius: 10px;
+  min-height: 54px;
+  padding: 0 22px;
+  border-radius: 999px;
   background: transparent;
   color: var(--primary);
   border: 1.5px solid var(--primary);
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   width: 100%;
 }
 
@@ -155,14 +163,55 @@
   background: var(--background);
 }
 
-.with-bottom-nav { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+.with-bottom-nav { padding-bottom: calc(112px + env(safe-area-inset-bottom)); }
 
-/* Subtle fade-in for screen transitions */
+/* Motion — soft, editorial, never bouncy */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-up { animation: fadeUp 280ms ease-out both; }
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+@keyframes checkPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 24px -4px rgba(255,255,255,0.35); }
+  50% { box-shadow: 0 0 32px -2px rgba(255,255,255,0.55); }
+}
+
+.animate-fade-up { animation: fadeUp 420ms var(--ease-out-soft) both; }
+.animate-fade-in { animation: fadeIn 300ms var(--ease-out-soft) both; }
+.animate-check-pop { animation: checkPop 320ms var(--ease-out-soft) both; }
+.animate-breathe { animation: breathe 3.2s ease-in-out infinite; }
+.animate-glow { animation: glowPulse 3.2s ease-in-out infinite; }
+
+/* Delay helpers for staggered entrances */
+.delay-1 { animation-delay: 60ms; }
+.delay-2 { animation-delay: 120ms; }
+.delay-3 { animation-delay: 180ms; }
+.delay-4 { animation-delay: 240ms; }
+.delay-5 { animation-delay: 300ms; }
+
+/* Microinteraction: tap-scale for cards/pills */
+.tap {
+  transition: transform 180ms var(--ease-out-soft), box-shadow 220ms var(--ease-out-soft);
+}
+.tap:hover { transform: translateY(-1px); }
+.tap:active { transform: scale(0.98); }
+
+/* Glass surface used by floating bottom nav */
+.glass {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: saturate(140%) blur(18px);
+  -webkit-backdrop-filter: saturate(140%) blur(18px);
+  border: 1px solid rgba(255,255,255,0.6);
+}
 
 a[href*="lovable.dev"],
 iframe[src*="lovable.dev"],
@@ -175,3 +224,4 @@ div[style*="Edit with Lovable"],
   position: absolute !important;
   z-index: -9999 !important;
 }
+
