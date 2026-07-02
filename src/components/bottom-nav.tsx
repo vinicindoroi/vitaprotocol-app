@@ -18,6 +18,7 @@ export function BottomNav() {
     >
       <nav
         aria-label="Navegación principal"
+        data-tour="nav"
         className="glass pointer-events-auto flex w-full max-w-[420px] items-center justify-around rounded-full px-2 py-2"
         style={{ boxShadow: "var(--shadow-float)" }}
       >
