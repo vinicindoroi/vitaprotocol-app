@@ -48,6 +48,7 @@ function Dashboard() {
 
   return (
     <div className="px-5 pt-12 pb-6 space-y-7">
+      <TutorialWizard />
       {/* Saludo — editorial */}
       <header className="animate-fade-up">
         <p
