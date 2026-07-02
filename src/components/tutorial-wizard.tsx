@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, ArrowRight, Salad, Compass, Sparkles, Hand, HelpCircle, CheckCircle2, Home, Calendar } from "lucide-react";
 
-const STORAGE_KEY = "vp.tutorial.v1";
+const STORAGE_KEY = "vp.tutorial.v2";
 
 type Step = {
   title: string;
