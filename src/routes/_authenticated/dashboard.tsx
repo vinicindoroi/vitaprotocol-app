@@ -100,7 +100,7 @@ function Dashboard() {
           {day.title}
         </p>
 
-        <div className="mt-5 grid grid-cols-5 gap-2">
+        <div className="mt-5 grid grid-cols-5 gap-2" data-tour="pillars">
           {STEP_ORDER.map((s, i) => {
             const Icon = STEP_ICONS[s];
             const isDone = doneToday.has(s);
