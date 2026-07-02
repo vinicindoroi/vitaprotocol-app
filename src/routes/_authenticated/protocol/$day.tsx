@@ -1,126 +1,150 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useProfile, useCompletions, profileQueryKey } from "@/hooks/use-profile";
-import { PROTOCOL_DAYS } from "@/data/protocol-days";
-import { MOTIVATIONAL } from "@/data/motivational";
+import { useEffect, useState } from "react";
+import { useProfile, profileQueryKey } from "@/hooks/use-profile";
+import { useDaySteps, useToggleStep } from "@/hooks/use-day-steps";
+import { DAY_STEPS, STEP_ORDER } from "@/data/protocol-steps";
+import { DayStepCard } from "@/components/day-step-card";
+import { SofiaMessage } from "@/components/sofia-message";
 import { LockedCard } from "@/components/locked-card";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/protocol/$day")({
   component: ProtocolDayView,
 });
 
+const CLOSING_MESSAGES = [
+  "Tu cuerpo recibió las señales correctas hoy.",
+  "Un paso más concluido.",
+  "Continúa mañana. El protocolo funciona por consistencia.",
+];
+
 function ProtocolDayView() {
   const { day: dayStr } = Route.useParams();
   const day = parseInt(dayStr, 10);
   const { data: profile } = useProfile();
-  const { data: completions = [] } = useCompletions();
+  const { done } = useDaySteps(day);
+  const toggle = useToggleStep();
   const qc = useQueryClient();
   const nav = useNavigate();
-  const [saving, setSaving] = useState(false);
+  const [showClosing, setShowClosing] = useState(false);
+  const [wasComplete, setWasComplete] = useState(false);
+
+  const allComplete = STEP_ORDER.every((s) => done.has(s));
+
+  // When user completes the last step of the day, advance current_day and show closing.
+  useEffect(() => {
+    if (!profile || Number.isNaN(day)) return;
+    if (allComplete && !wasComplete) {
+      setWasComplete(true);
+      setShowClosing(true);
+      (async () => {
+        const { data: u } = await supabase.auth.getUser();
+        if (!u.user) return;
+        const newCurrent = Math.max(profile.current_day, Math.min(day + 1, 30));
+        // Also insert into legacy day_completions for the calendar view.
+        await supabase.from("day_completions").insert({ user_id: u.user.id, day_number: day }).then(() => {});
+        await supabase.from("profiles").update({ current_day: newCurrent, last_active: new Date().toISOString() }).eq("id", u.user.id);
+        qc.invalidateQueries({ queryKey: profileQueryKey() });
+        qc.invalidateQueries({ queryKey: ["completions"] });
+        if (day === 30) setTimeout(() => nav({ to: "/journey-complete" }), 1800);
+      })();
+    }
+    if (!allComplete && wasComplete) setWasComplete(false);
+  }, [allComplete, wasComplete, day, profile, qc, nav]);
 
   if (!profile) return <div className="px-6 pt-12 text-muted-foreground">Cargando…</div>;
   if (Number.isNaN(day) || day < 1 || day > 30) {
     return <div className="px-6 pt-12">Día no válido.</div>;
   }
 
-  const content = PROTOCOL_DAYS[day - 1];
+  const content = DAY_STEPS[day - 1];
   const locked = profile.plan === "basic" && day > 7;
-  const isDone = completions.includes(day);
-  const canGoNext = day < 30 && (completions.includes(day) || day < profile.current_day);
 
   if (locked) {
     return (
       <div className="px-5 pt-8 pb-6">
-        <BackBar day={day} />
+        <BackBar />
         <div className="mt-6"><LockedCard /></div>
       </div>
     );
   }
 
-  async function markDone() {
-    if (!profile) return;
-    setSaving(true);
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) { setSaving(false); return; }
-    const { error } = await supabase.from("day_completions").insert({ user_id: u.user.id, day_number: day });
-    if (error && !error.message.includes("duplicate")) { toast.error(error.message); setSaving(false); return; }
-    const newCurrent = Math.max(profile.current_day, Math.min(day + 1, 30));
-    await supabase.from("profiles").update({ current_day: newCurrent, last_active: new Date().toISOString() }).eq("id", u.user.id);
-    qc.invalidateQueries({ queryKey: ["completions"] });
-    qc.invalidateQueries({ queryKey: profileQueryKey() });
-    setSaving(false);
-    toast.success(MOTIVATIONAL[day - 1] ?? "¡Bien hecho!");
-  }
+  const closingText = CLOSING_MESSAGES[(day - 1) % CLOSING_MESSAGES.length];
 
   return (
     <div className="px-5 pt-8 pb-6 animate-fade-up" key={day}>
-      <BackBar day={day} />
-      <header className="mt-6">
-        <p className="text-xs font-semibold" style={{ color: "var(--primary)" }}>Día {day} de 30</p>
-        <h1 className="mt-1 text-[26px] text-foreground" style={{ fontFamily: "var(--font-display)" }}>{content.title}</h1>
+      <BackBar />
+
+      <header className="mt-5">
+        <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
+          Día {day} · Hoy
+        </p>
+        <h1
+          className="mt-1 text-[24px] leading-tight text-foreground"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {content.title}
+        </h1>
       </header>
 
-      <section className="content-block mt-5">
-        <p className="text-xs font-semibold text-muted-foreground">🍽 ALIMENTACIÓN DE HOY</p>
-        <p className="mt-1.5 text-foreground">{content.food}</p>
-      </section>
-
-      <section className="content-block mt-4">
-        <p className="text-xs font-semibold text-muted-foreground">🌿 HÁBITO DEL DÍA</p>
-        <p className="mt-1.5 text-foreground">{content.habit}</p>
-      </section>
-
-      <section className="content-block mt-4">
-        <p className="text-xs font-semibold text-muted-foreground">⏰ HORARIOS RECOMENDADOS</p>
-        <table className="mt-3 w-full text-sm">
-          <tbody>
-            <tr><td className="py-1.5 font-medium">Desayuno</td><td className="py-1.5 text-muted-foreground">{content.schedule.breakfast}</td></tr>
-            <tr><td className="py-1.5 font-medium">Almuerzo</td><td className="py-1.5 text-muted-foreground">{content.schedule.lunch}</td></tr>
-            <tr><td className="py-1.5 font-medium">Cena</td><td className="py-1.5 text-muted-foreground">{content.schedule.dinner}</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <div className="mt-7">
-        {isDone ? (
-          <div className="flex items-center justify-center gap-2 rounded-lg bg-primary-soft py-3 text-sm font-semibold" style={{ color: "var(--success)" }}>
-            <Check size={18} /> Día completado
-          </div>
-        ) : (
-          <button onClick={markDone} disabled={saving} className="btn-primary">
-            {saving ? "Guardando…" : "✓ Marcar día como completado"}
-          </button>
-        )}
+      <div className="mt-6 space-y-3">
+        {STEP_ORDER.map((s, i) => (
+          <DayStepCard
+            key={s}
+            step={s}
+            content={content[s]}
+            index={i}
+            done={done.has(s)}
+            onToggle={() => toggle.mutate({ day, step: s, done: !done.has(s) })}
+          />
+        ))}
       </div>
 
-      <div className="mt-6 flex justify-between">
+      {showClosing && (
+        <div className="mt-6 animate-fade-up">
+          <SofiaMessage>
+            <p>{closingText}</p>
+          </SofiaMessage>
+          <button
+            className="mt-3 w-full text-center text-[13px] text-muted-foreground"
+            onClick={() => setShowClosing(false)}
+          >
+            cerrar
+          </button>
+        </div>
+      )}
+
+      <div className="mt-6 flex items-center justify-between">
         {day > 1 ? (
-          <Link to="/protocol/$day" params={{ day: String(day - 1) }} className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
-            <ChevronLeft size={16} /> Día anterior
+          <Link
+            to="/protocol/$day"
+            params={{ day: String(day - 1) }}
+            className="flex items-center gap-1 text-[13px] font-medium text-muted-foreground"
+          >
+            <ChevronLeft size={14} /> Día anterior
           </Link>
         ) : <span />}
-        {canGoNext ? (
-          <button
-            onClick={() => nav({ to: "/protocol/$day", params: { day: String(day + 1) } })}
-            className="flex items-center gap-1 text-sm font-medium"
+        {day < 30 && day < profile.current_day ? (
+          <Link
+            to="/protocol/$day"
+            params={{ day: String(day + 1) }}
+            className="flex items-center gap-1 text-[13px] font-medium"
             style={{ color: "var(--primary)" }}
           >
-            Día siguiente <ChevronRight size={16} />
-          </button>
+            Día siguiente <ChevronRight size={14} />
+          </Link>
         ) : <span />}
       </div>
     </div>
   );
 }
 
-function BackBar({ day }: { day: number }) {
+function BackBar() {
   return (
-    <Link to="/protocol" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground">
-      <ChevronLeft size={16} /> Todos los días
+    <Link to="/protocol" className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground">
+      <ChevronLeft size={14} /> Todos los días
     </Link>
   );
 }
