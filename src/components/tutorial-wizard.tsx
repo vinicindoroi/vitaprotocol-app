@@ -1,185 +1,361 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, ArrowRight, Salad, Compass, Sparkles, Hand, HelpCircle, CheckCircle2, Home, Calendar } from "lucide-react";
+import { X, ArrowRight, ArrowLeft } from "lucide-react";
 
-const STORAGE_KEY = "vp.tutorial.v2";
+const STORAGE_KEY = "vp.tutorial.v3";
 
 type Step = {
+  target?: string; // data-tour selector; omitted => centered welcome/close
+  eyebrow: string;
   title: string;
   body: string;
-  Icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
-  eyebrow: string;
+  placement?: "top" | "bottom" | "auto";
+  padding?: number;
 };
 
 const STEPS: Step[] = [
   {
     eyebrow: "Bienvenida",
-    title: "Esto no es una dieta. Es un acompañamiento.",
-    body: "Durante 30 días vas a enviarle a tu cuerpo señales suaves. Sin prohibiciones, sin conteos. Solo pequeños gestos diarios que reequilibran tus hormonas.",
-    Icon: Sparkles,
+    title: "Te voy a mostrar cómo usar tu protocolo.",
+    body: "Son 8 pasos muy cortos. Vas a ver, en la propia pantalla, para qué sirve cada parte de la app.",
   },
   {
-    eyebrow: "Tu día",
-    title: "Cinco pilares, todos los días.",
-    body: "En la pantalla de inicio verás cinco íconos: Nutrir, Ritmo, Mover, Descanso y Agua. Son los gestos del día. No importa el orden.",
-    Icon: Salad,
+    target: "[data-tour='hero']",
+    eyebrow: "Tu saludo diario",
+    title: "Aquí sabes en qué día estás.",
+    body: "Cada mañana la app te recibe con tu nombre, el día actual y la etapa de la jornada en la que te encuentras.",
+    placement: "bottom",
   },
   {
-    eyebrow: "Cómo marcar",
-    title: "Toca el ícono cuando lo completes.",
-    body: "Al tocarlo, el círculo se vuelve verde con un check. Verás tu progreso del día en el porcentaje arriba a la derecha.",
-    Icon: Hand,
+    target: "[data-tour='today']",
+    eyebrow: "El día de hoy",
+    title: "Este es tu bloque principal.",
+    body: "Todo lo que necesitas hoy vive dentro de esta tarjeta: los cinco pilares, tu avance y el siguiente paso.",
+    placement: "bottom",
   },
   {
-    eyebrow: "Entender el porqué",
-    title: "“¿Por qué esto?” en cada paso.",
-    body: "Dentro del Protocolo diario, cada pilar tiene una nota corta que te explica la intención. Y el sello de Camila te da la mirada científica.",
-    Icon: HelpCircle,
+    target: "[data-tour='pillars']",
+    eyebrow: "Los cinco pilares",
+    title: "Toca cada ícono cuando lo completes.",
+    body: "Nutrir, Ritmo, Mover, Descanso y Agua. Se vuelven verdes con un check al marcarlos. No importa el orden.",
+    placement: "bottom",
   },
   {
-    eyebrow: "Cerrar el día",
-    title: "Un cierre suave al terminar.",
-    body: "Cuando completes los cinco pilares, la app te acompaña con una frase de Sofía. Ese es tu momento de reconocer lo que hiciste hoy.",
-    Icon: CheckCircle2,
+    target: "[data-tour='progress']",
+    eyebrow: "Tu progreso",
+    title: "Este porcentaje sigue tu día.",
+    body: "Sube a medida que marcas los pilares. Cuando llega al 100%, tu cuerpo recibió todas las señales del día.",
+    placement: "bottom",
+    padding: 12,
   },
   {
+    target: "[data-tour='next-step']",
+    eyebrow: "Siguiente paso",
+    title: "Toca aquí para ver el detalle.",
+    body: "Abre el Protocolo del día: cada pilar con su explicación, el “¿Por qué esto?” y el sello de Camila.",
+    placement: "top",
+  },
+  {
+    target: "[data-tour='journey']",
     eyebrow: "Tu jornada",
-    title: "Cinco etapas de transformación.",
-    body: "Diagnóstico, Reequilibrio, Activación, Transformación y Consolidación. En la pestaña Jornada ves en qué etapa estás y cuánto ya recorriste.",
-    Icon: Compass,
+    title: "Las cinco etapas de 30 días.",
+    body: "Diagnóstico, Reequilibrio, Activación, Transformación y Consolidación. Toca la tarjeta para ver todo el camino.",
+    placement: "top",
   },
   {
+    target: "[data-tour='camila']",
+    eyebrow: "Visión de Camila",
+    title: "La ciencia detrás de cada gesto.",
+    body: "Camila te da la explicación clínica. Sofía, en el Protocolo diario, te acompaña con la parte emocional.",
+    placement: "top",
+  },
+  {
+    target: "[data-tour='nav']",
     eyebrow: "Moverte en la app",
-    title: "Todo vive en la barra inferior.",
-    body: "Hoy es tu día actual. Protocolo abre el detalle de cada día. Jornada muestra tu progreso. Compras trae la lista y Perfil tus datos.",
-    Icon: Home,
+    title: "Todo vive en esta barra.",
+    body: "Hoy · Protocolo · Jornada · Compras · Perfil. Vuelve cada día — la app abre siempre en el día correcto.",
+    placement: "top",
+    padding: 14,
   },
   {
-    eyebrow: "Constancia",
-    title: "Un día no cuenta. Treinta transforman.",
-    body: "Vuelve cada mañana. La app te espera con el día correcto — no tienes que buscarlo. Al llegar al Día 30 verás tu comparación completa.",
-    Icon: Calendar,
+    eyebrow: "Listo",
+    title: "Nos vemos mañana temprano.",
+    body: "Un día no cuenta, treinta transforman. Empieza por el primer pilar cuando estés lista.",
   },
 ];
 
+type Rect = { top: number; left: number; width: number; height: number };
 
 export function TutorialWizard() {
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(0);
+  const [i, setI] = useState(0);
+  const [rect, setRect] = useState<Rect | null>(null);
+  const [viewport, setViewport] = useState({ w: 0, h: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [cardH, setCardH] = useState(220);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!localStorage.getItem(STORAGE_KEY)) {
-      const t = setTimeout(() => setOpen(true), 350);
+      const t = setTimeout(() => setOpen(true), 400);
       return () => clearTimeout(t);
     }
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onResize = () =>
+      setViewport({ w: window.innerWidth, h: window.innerHeight });
+    onResize();
+    window.addEventListener("resize", onResize);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("resize", onResize);
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  const step = STEPS[i];
+
+  // Measure target rect + scroll it into view
+  useLayoutEffect(() => {
+    if (!open) return;
+    if (!step.target) {
+      setRect(null);
+      return;
+    }
+    const el = document.querySelector(step.target) as HTMLElement | null;
+    if (!el) {
+      setRect(null);
+      return;
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    let raf = 0;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+    };
+    measure();
+    // Re-measure after scroll animation settles
+    const t1 = window.setTimeout(measure, 200);
+    const t2 = window.setTimeout(measure, 500);
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(measure);
+    };
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [i, open, step.target]);
+
+  useLayoutEffect(() => {
+    if (cardRef.current) setCardH(cardRef.current.offsetHeight);
+  }, [i, open, rect, viewport.w]);
+
+  if (!open || typeof document === "undefined") return null;
 
   function close() {
     localStorage.setItem(STORAGE_KEY, "done");
     setOpen(false);
   }
-
   function next() {
-    if (step < STEPS.length - 1) setStep(step + 1);
+    if (i < STEPS.length - 1) setI(i + 1);
     else close();
   }
+  function prev() {
+    if (i > 0) setI(i - 1);
+  }
 
-  if (!open || typeof document === "undefined") return null;
+  const pad = step.padding ?? 10;
+  const hasTarget = !!rect;
 
-  const s = STEPS[step];
-  const { Icon } = s;
-  const isLast = step === STEPS.length - 1;
+  // Cutout box (with padding). Constrained to viewport for the mask.
+  const cut = rect
+    ? {
+        top: Math.max(0, rect.top - pad),
+        left: Math.max(0, rect.left - pad),
+        width: rect.width + pad * 2,
+        height: rect.height + pad * 2,
+      }
+    : null;
+
+  // Card placement
+  const cardWidth = Math.min(380, viewport.w - 24);
+  const margin = 16;
+  let cardTop: number;
+  let cardLeft: number;
+
+  if (!hasTarget || !cut) {
+    cardTop = Math.max(20, (viewport.h - cardH) / 2);
+    cardLeft = (viewport.w - cardWidth) / 2;
+  } else {
+    const spaceBelow = viewport.h - (cut.top + cut.height);
+    const spaceAbove = cut.top;
+    const placeBelow =
+      step.placement === "bottom" ||
+      (step.placement !== "top" && spaceBelow > spaceAbove);
+    cardTop = placeBelow
+      ? Math.min(cut.top + cut.height + margin, viewport.h - cardH - 20)
+      : Math.max(20, cut.top - cardH - margin);
+    cardLeft = Math.min(
+      Math.max(12, cut.left + cut.width / 2 - cardWidth / 2),
+      viewport.w - cardWidth - 12,
+    );
+  }
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center px-4 animate-fade-in"
-      style={{ background: "rgba(27,58,46,0.55)", backdropFilter: "blur(6px)" }}
+      className="fixed inset-0 z-[100] animate-fade-in"
       role="dialog"
       aria-modal="true"
-      aria-label="Bienvenida"
+      aria-label="Tutorial"
+      style={{ pointerEvents: "auto" }}
     >
-      <div
-        key={step}
-        className="animate-fade-up mb-4 w-full max-w-[440px] overflow-hidden rounded-[32px] bg-card"
-        style={{ boxShadow: "var(--shadow-float)" }}
+      {/* SVG mask overlay with cutout */}
+      <svg
+        width="100%"
+        height="100%"
+        className="absolute inset-0"
+        style={{ pointerEvents: "auto" }}
       >
-        <div
-          className="relative flex items-center justify-center px-6 pb-8 pt-10"
-          style={{
-            background:
-              "linear-gradient(160deg, var(--primary-soft) 0%, #FFFFFF 100%)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={close}
-            aria-label="Saltar tutorial"
-            className="tap absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full"
-            style={{ background: "rgba(255,255,255,0.9)", color: "var(--primary)" }}
-          >
-            <X size={16} />
-          </button>
-          <div
-            className="animate-breathe flex h-20 w-20 items-center justify-center rounded-full"
+        <defs>
+          <mask id="tour-mask">
+            <rect x="0" y="0" width="100%" height="100%" fill="white" />
+            {cut && (
+              <rect
+                x={cut.left}
+                y={cut.top}
+                width={cut.width}
+                height={cut.height}
+                rx={20}
+                ry={20}
+                fill="black"
+                style={{ transition: "all 380ms cubic-bezier(0.22,1,0.36,1)" }}
+              />
+            )}
+          </mask>
+        </defs>
+        <rect
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          fill="rgba(27,58,46,0.62)"
+          mask="url(#tour-mask)"
+          style={{ backdropFilter: "blur(2px)" }}
+        />
+        {cut && (
+          <rect
+            x={cut.left}
+            y={cut.top}
+            width={cut.width}
+            height={cut.height}
+            rx={20}
+            ry={20}
+            fill="none"
+            stroke="rgba(255,255,255,0.9)"
+            strokeWidth={2}
             style={{
-              background: "var(--primary)",
-              color: "#fff",
-              boxShadow: "0 20px 40px -14px rgba(45,106,79,0.55)",
+              transition: "all 380ms cubic-bezier(0.22,1,0.36,1)",
+              filter: "drop-shadow(0 0 12px rgba(82,183,136,0.7))",
             }}
-          >
-            <Icon size={30} strokeWidth={1.6} />
-          </div>
-        </div>
+          />
+        )}
+      </svg>
 
-        <div className="px-7 pb-7 pt-5">
+      {/* Coach-mark card */}
+      <div
+        ref={cardRef}
+        key={i}
+        className="animate-fade-up absolute rounded-[28px] bg-card p-5"
+        style={{
+          top: cardTop,
+          left: cardLeft,
+          width: cardWidth,
+          boxShadow: "var(--shadow-float)",
+          transition: "top 380ms cubic-bezier(0.22,1,0.36,1), left 380ms cubic-bezier(0.22,1,0.36,1)",
+        }}
+      >
+        <div className="flex items-start justify-between gap-3">
           <p
             className="text-[10px] font-bold uppercase tracking-[0.2em]"
             style={{ color: "var(--primary)" }}
           >
-            {s.eyebrow}
+            {step.eyebrow}
           </p>
-          <h2
-            className="mt-2 text-[22px] leading-[1.2]"
-            style={{ fontFamily: "var(--font-display)", color: "var(--primary-deep)" }}
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Saltar tutorial"
+            className="tap -mr-1 -mt-1 flex h-8 w-8 items-center justify-center rounded-full"
+            style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}
           >
-            {s.title}
-          </h2>
-          <p
-            className="mt-3 text-[14px] leading-relaxed"
-            style={{ color: "var(--muted-foreground)" }}
-          >
-            {s.body}
-          </p>
+            <X size={14} />
+          </button>
+        </div>
 
-          <div className="mt-6 flex items-center justify-center gap-1.5">
-            {STEPS.map((_, i) => (
+        <h2
+          className="mt-2 text-[19px] leading-[1.2]"
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--primary-deep)",
+          }}
+        >
+          {step.title}
+        </h2>
+        <p
+          className="mt-2 text-[13.5px] leading-relaxed"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {step.body}
+        </p>
+
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-1">
+            {STEPS.map((_, idx) => (
               <span
-                key={i}
+                key={idx}
                 className="h-1.5 rounded-full transition-all duration-300"
                 style={{
-                  width: i === step ? 22 : 6,
+                  width: idx === i ? 18 : 5,
                   background:
-                    i === step ? "var(--primary)" : "rgba(45,106,79,0.2)",
+                    idx === i ? "var(--primary)" : "rgba(45,106,79,0.22)",
                 }}
               />
             ))}
           </div>
-
-          <div className="mt-6 flex items-center gap-3">
-            {!isLast && (
+          <div className="flex items-center gap-2">
+            {i > 0 && (
               <button
                 type="button"
-                onClick={close}
-                className="tap text-[13px] font-semibold"
-                style={{ color: "var(--muted-foreground)" }}
+                onClick={prev}
+                aria-label="Anterior"
+                className="tap flex h-10 w-10 items-center justify-center rounded-full"
+                style={{
+                  background: "var(--muted)",
+                  color: "var(--primary)",
+                }}
               >
-                Saltar
+                <ArrowLeft size={16} />
               </button>
             )}
-            <button type="button" onClick={next} className="btn-primary flex-1">
-              <span>{isLast ? "Comenzar mi día" : "Siguiente"}</span>
-              <ArrowRight size={16} className="ml-2" />
+            <button
+              type="button"
+              onClick={next}
+              className="tap inline-flex h-10 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-white"
+              style={{
+                background: "var(--primary)",
+                boxShadow: "0 10px 22px -10px rgba(45,106,79,0.6)",
+              }}
+            >
+              {i === STEPS.length - 1 ? "Comenzar" : "Siguiente"}
+              <ArrowRight size={14} />
             </button>
           </div>
         </div>
