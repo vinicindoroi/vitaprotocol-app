@@ -246,6 +246,7 @@ function Dashboard() {
       <section
         className="animate-fade-up delay-3 rounded-[32px] p-6"
         style={{ background: "var(--primary-soft)" }}
+        data-tour="camila"
       >
         <div className="flex items-start gap-4">
           <div
