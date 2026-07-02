@@ -2,9 +2,9 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, ArrowRight, ArrowLeft } from "lucide-react";
 
-const STORAGE_KEY = "vp.tutorial.v3";
+const DEFAULT_STORAGE_KEY = "vp.tutorial.v3";
 
-type Step = {
+export type TourStep = {
   target?: string; // data-tour selector; omitted => centered welcome/close
   eyebrow: string;
   title: string;
@@ -13,7 +13,7 @@ type Step = {
   padding?: number;
 };
 
-const STEPS: Step[] = [
+const DASHBOARD_STEPS: TourStep[] = [
   {
     eyebrow: "Bienvenida",
     title: "Te voy a mostrar cómo usar tu protocolo.",
