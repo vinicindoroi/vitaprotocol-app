@@ -172,7 +172,7 @@ function Dashboard() {
       </section>
 
       {/* Jornada — card oscuro con luz */}
-      <section className="animate-fade-up delay-2">
+      <section className="animate-fade-up delay-2" data-tour="journey">
         <h2
           className="mb-3 text-[19px]"
           style={{ fontFamily: "var(--font-display)", color: "var(--primary-deep)" }}
