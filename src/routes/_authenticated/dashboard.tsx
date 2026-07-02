@@ -50,7 +50,7 @@ function Dashboard() {
     <div className="px-5 pt-12 pb-6 space-y-7">
       <TutorialWizard />
       {/* Saludo — editorial */}
-      <header className="animate-fade-up">
+      <header className="animate-fade-up" data-tour="hero">
         <p
           className="text-[11px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "rgba(45,106,79,0.6)" }}
@@ -72,10 +72,13 @@ function Dashboard() {
         </h1>
       </header>
 
+
+
       {/* Card principal: 5 pilares */}
       <section
         className="animate-fade-up delay-1 rounded-[32px] border bg-card p-6"
         style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-soft)" }}
+        data-tour="today"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-[17px] font-semibold" style={{ color: "var(--primary-deep)" }}>
@@ -84,6 +87,7 @@ function Dashboard() {
           <span
             className="rounded-full px-3 py-1 text-[11px] font-bold"
             style={{ background: "var(--primary-soft)", color: "var(--primary)" }}
+            data-tour="progress"
           >
             {progress}%
           </span>
@@ -96,7 +100,7 @@ function Dashboard() {
           {day.title}
         </p>
 
-        <div className="mt-5 grid grid-cols-5 gap-2">
+        <div className="mt-5 grid grid-cols-5 gap-2" data-tour="pillars">
           {STEP_ORDER.map((s, i) => {
             const Icon = STEP_ICONS[s];
             const isDone = doneToday.has(s);
@@ -145,6 +149,7 @@ function Dashboard() {
           params={{ day: String(currentDay) }}
           className="tap mt-6 flex items-center justify-between rounded-2xl px-4 py-3"
           style={{ background: "var(--muted)" }}
+          data-tour="next-step"
         >
           <div className="min-w-0">
             <p
@@ -167,7 +172,7 @@ function Dashboard() {
       </section>
 
       {/* Jornada — card oscuro con luz */}
-      <section className="animate-fade-up delay-2">
+      <section className="animate-fade-up delay-2" data-tour="journey">
         <h2
           className="mb-3 text-[19px]"
           style={{ fontFamily: "var(--font-display)", color: "var(--primary-deep)" }}
@@ -241,6 +246,7 @@ function Dashboard() {
       <section
         className="animate-fade-up delay-3 rounded-[32px] p-6"
         style={{ background: "var(--primary-soft)" }}
+        data-tour="camila"
       >
         <div className="flex items-start gap-4">
           <div
