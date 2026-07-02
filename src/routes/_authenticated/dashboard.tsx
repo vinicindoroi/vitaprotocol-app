@@ -78,6 +78,7 @@ function Dashboard() {
       <section
         className="animate-fade-up delay-1 rounded-[32px] border bg-card p-6"
         style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-soft)" }}
+        data-tour="today"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-[17px] font-semibold" style={{ color: "var(--primary-deep)" }}>
@@ -86,6 +87,7 @@ function Dashboard() {
           <span
             className="rounded-full px-3 py-1 text-[11px] font-bold"
             style={{ background: "var(--primary-soft)", color: "var(--primary)" }}
+            data-tour="progress"
           >
             {progress}%
           </span>
