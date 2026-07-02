@@ -5,6 +5,8 @@ import { HORMONES, type HormoneKey } from "@/data/hormones";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { UPGRADE_URL, SUPPORT_EMAIL } from "@/lib/config";
+import { TutorialWizard } from "@/components/tutorial-wizard";
+import { PROFILE_TOUR } from "@/data/tours";
 import { LogOut, KeyRound, Bell, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -47,6 +49,7 @@ function ProfilePage() {
 
   return (
     <div className="px-5 pt-8 pb-6 animate-fade-up">
+      <TutorialWizard steps={PROFILE_TOUR} storageKey="vp.tour.profile.v1" />
       <header className="flex items-center gap-4">
         <div className="flex h-16 w-16 items-center justify-center rounded-full text-2xl font-semibold" style={{ background: "var(--primary-soft)", color: "var(--primary)" }}>
           {initial}
@@ -58,7 +61,7 @@ function ProfilePage() {
         </div>
       </header>
 
-      <section className="card-soft mt-6 p-5">
+      <section className="card-soft mt-6 p-5" data-tour="profile-plan">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">Tu plan</p>
         {profile.plan === "complete" ? (
           <div className="mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "var(--primary-soft)", color: "var(--primary)" }}>
@@ -75,7 +78,7 @@ function ProfilePage() {
       </section>
 
       {hormone && (
-        <section className="card-soft mt-5 p-5">
+        <section className="card-soft mt-5 p-5" data-tour="profile-hormone">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Tu hormona</p>
           <div className="mt-2 flex items-center gap-2">
             <span className="text-xl">{hormone.icon}</span>
@@ -86,7 +89,7 @@ function ProfilePage() {
         </section>
       )}
 
-      <section className="mt-7 space-y-1">
+      <section className="mt-7 space-y-1" data-tour="profile-actions">
         <Row icon={<KeyRound size={18} />} label="Cambiar contraseña" onClick={changePassword} />
         <Row icon={<Bell size={18} />} label="Notificaciones (próximamente)" onClick={() => toast.info("Disponible pronto")} />
         <Row icon={<FileText size={18} />} label={`Soporte: ${SUPPORT_EMAIL}`} onClick={() => (window.location.href = `mailto:${SUPPORT_EMAIL}`)} />
