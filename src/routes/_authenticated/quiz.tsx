@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUIZ, scoreQuiz } from "@/data/quiz";
 import { HORMONES, type HormoneKey } from "@/data/hormones";
-import { ProgressBar } from "@/components/progress-bar";
+import { SofiaMessage } from "@/components/sofia-message";
 import { supabase } from "@/integrations/supabase/client";
 import { profileQueryKey } from "@/hooks/use-profile";
 import { toast } from "sonner";
@@ -12,62 +12,105 @@ export const Route = createFileRoute("/_authenticated/quiz")({
   component: QuizPage,
 });
 
+type Phase = "questions" | "listening" | "preparing" | "result";
+
 function QuizPage() {
-  const [step, setStep] = useState(0); // 0..QUIZ.length (last = result)
+  const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
+  const [phase, setPhase] = useState<Phase>("questions");
   const [result, setResult] = useState<HormoneKey | null>(null);
-  const [saving, setSaving] = useState(false);
   const qc = useQueryClient();
   const nav = useNavigate();
-  const isResult = step === QUIZ.length;
-  const pct = (Math.min(step, QUIZ.length) / QUIZ.length) * 100;
 
   useEffect(() => {
-    if (isResult && !result) {
+    if (phase !== "listening") return;
+    const t1 = setTimeout(() => setPhase("preparing"), 2400);
+    return () => clearTimeout(t1);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "preparing") return;
+    (async () => {
       const r = scoreQuiz(answers);
-      setResult(r);
-      // save in background
-      (async () => {
-        setSaving(true);
-        const { data: u } = await supabase.auth.getUser();
-        if (u.user) {
-          const { error } = await supabase
-            .from("profiles")
-            .update({ dominant_hormone: r, quiz_completed: true })
-            .eq("id", u.user.id);
-          if (error) toast.error(error.message);
-          qc.invalidateQueries({ queryKey: profileQueryKey() });
-        }
-        setSaving(false);
-      })();
-    }
-  }, [isResult, result, answers, qc]);
+      const { data: u } = await supabase.auth.getUser();
+      if (u.user) {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ dominant_hormone: r, quiz_completed: true })
+          .eq("id", u.user.id);
+        if (error) toast.error(error.message);
+        qc.invalidateQueries({ queryKey: profileQueryKey() });
+      }
+      setTimeout(() => {
+        setResult(r);
+        setPhase("result");
+      }, 2400);
+    })();
+  }, [phase, answers, qc]);
 
   function pick(optIdx: number) {
     const next = [...answers];
     next[step] = optIdx;
     setAnswers(next);
-    setTimeout(() => setStep((s) => s + 1), 350);
+    setTimeout(() => {
+      if (step + 1 < QUIZ.length) setStep(step + 1);
+      else setPhase("listening");
+    }, 320);
   }
 
-  if (isResult && result) {
+  if (phase === "listening" || phase === "preparing") {
+    return (
+      <div className="flex min-h-[100dvh] flex-col items-center justify-center px-8 text-center">
+        <div className="animate-fade-up" key={phase}>
+          <PulseDot />
+          <p
+            className="mt-8 text-[22px] leading-relaxed text-foreground"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            {phase === "listening"
+              ? "Estamos identificando qué señales está mostrando tu cuerpo…"
+              : "Tu protocolo se está preparando…"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "result" && result) {
     const h = HORMONES[result];
     return (
-      <div className="px-6 pt-10 pb-10 animate-fade-up">
-        <h1 className="text-[26px] text-foreground" style={{ fontFamily: "var(--font-display)" }}>Tu diagnóstico está listo ✓</h1>
-        <p className="mt-2 text-muted-foreground">Tu principal desequilibrio hormonal es:</p>
+      <div className="min-h-[100dvh] px-6 pt-12 pb-10 animate-fade-up">
+        <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
+          Diagnóstico listo
+        </p>
+        <h1
+          className="mt-2 text-[26px] leading-tight text-foreground"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Tu cuerpo está pidiendo trabajar sobre:
+        </h1>
         <div className="card-soft mt-6 p-6">
-          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: h.badgeBg, color: h.badgeText }}>
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[12px] font-semibold"
+            style={{ background: h.badgeBg, color: h.badgeText }}
+          >
             <span className="text-base">{h.icon}</span> {h.name}
           </div>
-          <p className="mt-4 text-foreground" style={{ lineHeight: 1.7 }}>{h.description}</p>
-          <div className="content-block-soft mt-5">
-            <p className="text-sm font-semibold text-primary">Enfoque del protocolo</p>
-            <p className="mt-1 text-sm text-foreground">{h.focus}</p>
-          </div>
+          <p className="mt-4 text-[15px] leading-relaxed text-foreground/85">{h.description}</p>
         </div>
-        <button onClick={() => nav({ to: "/dashboard" })} disabled={saving} className="btn-primary mt-8">
-          {saving ? "Guardando…" : "Comenzar el Día 1 de mi protocolo →"}
+
+        <div className="mt-6">
+          <SofiaMessage>
+            <p>Hoy empieza tu camino.</p>
+            <p>Vamos paso a paso, en secuencia. Tu cuerpo sabe responder cuando recibe las señales correctas.</p>
+          </SofiaMessage>
+        </div>
+
+        <button
+          onClick={() => nav({ to: "/dashboard" })}
+          className="btn-primary mt-8"
+        >
+          Comenzar el Día 1
         </button>
       </div>
     );
@@ -77,24 +120,40 @@ function QuizPage() {
   if (!q) return null;
   const selected = answers[step];
   return (
-    <div className="px-6 pt-10 pb-10">
-      <div className="mb-6">
-        <ProgressBar value={pct} />
-        <p className="mt-2 text-xs text-muted-foreground">Pregunta {step + 1} de {QUIZ.length}</p>
+    <div className="flex min-h-[100dvh] flex-col px-7 pt-16 pb-10">
+      <div className="mb-10 flex items-center gap-1">
+        {QUIZ.map((_, i) => (
+          <span
+            key={i}
+            className="h-[3px] flex-1 rounded-full transition-all"
+            style={{ background: i <= step ? "var(--primary)" : "var(--border)" }}
+          />
+        ))}
       </div>
-      <div className="animate-fade-up" key={step}>
-        <h2 className="text-[22px] text-foreground" style={{ fontFamily: "var(--font-display)" }}>{q.question}</h2>
-        <div className="mt-6 space-y-3">
+
+      <div className="animate-fade-up flex-1" key={step}>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Pregunta {step + 1} de {QUIZ.length}
+        </p>
+        <h2
+          className="mt-4 text-[26px] leading-snug text-foreground"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {q.question}
+        </h2>
+
+        <div className="mt-8 space-y-3">
           {q.options.map((opt, i) => {
             const isSel = selected === i;
             return (
               <button
                 key={i}
                 onClick={() => pick(i)}
-                className="w-full rounded-xl border-2 px-4 py-4 text-left text-base transition"
+                className="w-full rounded-xl border-[1.5px] px-4 py-4 text-left text-[15.5px] leading-snug transition-all"
                 style={{
                   borderColor: isSel ? "var(--primary)" : "var(--border)",
                   background: isSel ? "var(--primary-soft)" : "var(--background)",
+                  color: "var(--foreground)",
                 }}
               >
                 {opt.label}
@@ -103,9 +162,32 @@ function QuizPage() {
           })}
         </div>
       </div>
+
       {step > 0 && (
-        <button onClick={() => setStep((s) => s - 1)} className="mt-6 text-sm font-medium text-muted-foreground">← Atrás</button>
+        <button
+          onClick={() => setStep((s) => s - 1)}
+          className="mt-6 self-start text-[13px] font-medium text-muted-foreground"
+        >
+          ← Anterior
+        </button>
       )}
+    </div>
+  );
+}
+
+function PulseDot() {
+  return (
+    <div className="relative mx-auto h-16 w-16">
+      <span
+        className="absolute inset-0 rounded-full"
+        style={{ background: "var(--primary)", opacity: 0.15, animation: "pulseDot 1.6s ease-out infinite" }}
+      />
+      <span
+        className="absolute inset-3 rounded-full"
+        style={{ background: "var(--primary)", opacity: 0.35, animation: "pulseDot 1.6s ease-out infinite 0.3s" }}
+      />
+      <span className="absolute inset-[26px] rounded-full" style={{ background: "var(--primary)" }} />
+      <style>{`@keyframes pulseDot { 0% { transform: scale(0.85); opacity: 0.6 } 100% { transform: scale(1.4); opacity: 0 } }`}</style>
     </div>
   );
 }

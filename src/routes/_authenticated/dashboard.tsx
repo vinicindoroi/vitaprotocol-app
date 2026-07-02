@@ -1,102 +1,138 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useProfile, useCompletions } from "@/hooks/use-profile";
-import { HORMONES, type HormoneKey } from "@/data/hormones";
-import { PROTOCOL_DAYS } from "@/data/protocol-days";
-import { ProgressBar } from "@/components/progress-bar";
-import { UPGRADE_URL, TELEGRAM_URL } from "@/lib/config";
-import { Calendar, BarChart3, ShoppingCart, MessagesSquare, Lock } from "lucide-react";
+import { useProfile } from "@/hooks/use-profile";
+import { useAllStepCompletions } from "@/hooks/use-day-steps";
+import { DAY_STEPS, STEP_ORDER, STEP_META } from "@/data/protocol-steps";
+import { getStage } from "@/data/journey";
+import { UPGRADE_URL } from "@/lib/config";
+import { ArrowRight, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-const WEEKDAYS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-
 function Dashboard() {
   const { data: profile, isLoading } = useProfile();
-  const { data: completions = [] } = useCompletions();
+  const { data: completions = [] } = useAllStepCompletions();
   if (isLoading || !profile) return <div className="px-6 pt-12 text-muted-foreground">Cargando…</div>;
 
+  // If quiz not done, gently guide to it — first step of the journey.
+  if (!profile.quiz_completed) {
+    return <DiagnosticInvite />;
+  }
+
   const currentDay = Math.min(profile.current_day, 30);
-  const week = Math.ceil(currentDay / 7);
-  const day = PROTOCOL_DAYS[currentDay - 1];
-  const pctDone = (completions.length / 30) * 100;
-  const hormone = (profile.dominant_hormone as HormoneKey | null) && HORMONES[profile.dominant_hormone as HormoneKey];
-  const firstName = profile.full_name.split(" ")[0] || "amiga";
+  const day = DAY_STEPS[currentDay - 1];
+  const firstName = (profile.full_name || "").split(" ")[0] || "";
+  const greeting = getGreeting();
+  const doneToday = new Set(
+    completions.filter((c) => c.day_number === currentDay).map((c) => c.step),
+  );
+  const remaining = STEP_ORDER.filter((s) => !doneToday.has(s));
+  const stage = getStage(currentDay, profile.quiz_completed);
 
   return (
-    <div className="px-5 pt-8 pb-6 animate-fade-up">
+    <div className="px-5 pt-10 pb-6 animate-fade-up">
       <header>
-        <h1 className="text-[22px] text-foreground" style={{ fontFamily: "var(--font-display)" }}>
-          Hola, {firstName} 👋
+        <h1
+          className="text-[24px] leading-tight text-foreground"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          {greeting}{firstName ? `, ${firstName}` : ""}.
         </h1>
-        <p className="mt-1 text-sm font-medium" style={{ color: "var(--primary)" }}>
-          Día {currentDay} de 30 — Semana {week}
+        <p className="mt-1.5 text-[14px] text-muted-foreground">
+          Hoy es tu Día {currentDay} de VitalProtocol.
         </p>
-        <div className="mt-3"><ProgressBar value={pctDone} /></div>
       </header>
 
-      {day && (
-        <section className="content-block-soft mt-6">
-          <div className="text-xs font-semibold" style={{ color: "var(--primary)" }}>
-            📅 Día {day.day} — {WEEKDAYS[new Date().getDay()]}
-          </div>
-          <h2 className="mt-1 text-[20px] text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+      <section className="mt-8">
+        <p className="text-[15px] text-foreground/85">
+          {remaining.length === 0
+            ? "Hoy tu cuerpo recibió todas las señales correctas."
+            : `Hoy solo necesitas completar ${remaining.length === 5 ? "cinco" : remaining.length === 4 ? "cuatro" : remaining.length === 3 ? "tres" : remaining.length === 2 ? "dos" : "un"} paso${remaining.length === 1 ? "" : "s"}.`}
+        </p>
+
+        <Link
+          to="/protocol/$day"
+          params={{ day: String(currentDay) }}
+          className="mt-4 block rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
+        >
+          <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
+            Tu día de hoy
+          </p>
+          <h2
+            className="mt-1 text-[20px] leading-snug text-foreground"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             {day.title}
           </h2>
-          <p className="mt-2 text-sm text-foreground/80 line-clamp-2">{day.food}</p>
-          <Link to="/protocol/$day" params={{ day: String(currentDay) }} className="btn-primary mt-4">
-            Ver el protocolo de hoy →
-          </Link>
-        </section>
-      )}
 
-      {hormone && (
-        <section className="card-soft mt-5 p-5">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Tu hormona prioritaria</p>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-xl">{hormone.icon}</span>
-            <h3 className="text-base font-semibold text-foreground">{hormone.name}</h3>
+          <ul className="mt-4 space-y-2.5">
+            {STEP_ORDER.map((s, i) => {
+              const isDone = doneToday.has(s);
+              const m = STEP_META[s];
+              return (
+                <li key={s} className="flex items-center gap-3 text-[14px]">
+                  <span
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[13px]"
+                    style={{
+                      background: isDone ? "var(--primary)" : "var(--muted)",
+                      color: isDone ? "#fff" : "var(--muted-foreground)",
+                    }}
+                  >
+                    {isDone ? "✓" : i + 1}
+                  </span>
+                  <span
+                    style={{
+                      color: isDone ? "var(--muted-foreground)" : "var(--foreground)",
+                      textDecoration: isDone ? "line-through" : "none",
+                    }}
+                  >
+                    {m.label}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-5 flex items-center justify-end gap-1 text-[13px] font-semibold" style={{ color: "var(--primary)" }}>
+            Abrir día <ArrowRight size={14} />
           </div>
-          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{hormone.focus}</p>
-          <Link to="/profile" className="mt-3 inline-block text-sm font-medium" style={{ color: "var(--primary)" }}>
-            Ver más sobre tu perfil →
-          </Link>
-        </section>
-      )}
-
-      <section className="mt-6 grid grid-cols-2 gap-3">
-        <Quick to="/protocol" icon={<Calendar size={22} />} label="Mi protocolo" />
-        <Quick to="/progress" icon={<BarChart3 size={22} />} label="Mi progreso" />
-        {profile.plan === "complete" ? (
-          <>
-            <Quick to="/shopping" icon={<ShoppingCart size={22} />} label="Lista de compras" />
-            <QuickExternal href={TELEGRAM_URL} icon={<MessagesSquare size={22} />} label="Comunidad" />
-          </>
-        ) : (
-          <>
-            <Quick to="/shopping" icon={<Lock size={18} />} label="Lista de compras" muted />
-            <QuickExternal href={UPGRADE_URL} icon={<Lock size={18} />} label="Comunidad" muted />
-          </>
-        )}
+        </Link>
       </section>
 
-      {profile.plan === "basic" && (
+      <section className="mt-8">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Tu jornada
+        </p>
+        <div
+          className="mt-2 rounded-xl border border-border bg-card p-4"
+        >
+          <p className="text-[15px]" style={{ fontFamily: "var(--font-display)" }}>
+            Estás en <span style={{ color: "var(--primary)" }}>{stage.label}</span>.
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">{stage.subtitle}.</p>
+          <Link to="/progress" className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold" style={{ color: "var(--primary)" }}>
+            Ver la jornada completa <ArrowRight size={12} />
+          </Link>
+        </div>
+      </section>
+
+      {profile.plan === "basic" && currentDay >= 5 && (
         <section
-          className="mt-7 rounded-2xl p-5"
+          className="mt-6 rounded-2xl p-4"
           style={{
-            background: "linear-gradient(135deg, var(--primary-soft), var(--background))",
-            border: "1.5px dashed var(--primary)",
+            background: "var(--primary-soft)",
+            border: "1px dashed var(--primary)",
           }}
         >
-          <p className="text-sm font-semibold text-foreground">
-            🔓 Desbloquea los 30 días completos
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            + lista de compras + guía de síntomas + comunidad privada.
-          </p>
-          <a href={UPGRADE_URL} target="_blank" rel="noreferrer" className="btn-outline mt-4">
-            Ver oferta especial →
+          <div className="flex items-center gap-2">
+            <Lock size={14} style={{ color: "var(--primary)" }} />
+            <p className="text-[13px] font-semibold text-foreground">
+              El protocolo continúa después del Día 7.
+            </p>
+          </div>
+          <a href={UPGRADE_URL} target="_blank" rel="noreferrer" className="mt-1 inline-block text-[13px]" style={{ color: "var(--primary)" }}>
+            Continuar la secuencia completa →
           </a>
         </section>
       )}
@@ -104,19 +140,29 @@ function Dashboard() {
   );
 }
 
-function Quick({ to, icon, label, muted }: { to: "/protocol" | "/progress" | "/shopping"; icon: React.ReactNode; label: string; muted?: boolean }) {
-  return (
-    <Link to={to} className="card-soft flex flex-col gap-2 p-4" style={{ opacity: muted ? 0.7 : 1 }}>
-      <span style={{ color: "var(--primary)" }}>{icon}</span>
-      <span className="text-sm font-semibold text-foreground">{label}</span>
-    </Link>
-  );
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Buenos días";
+  if (h < 19) return "Buenas tardes";
+  return "Buenas noches";
 }
-function QuickExternal({ href, icon, label, muted }: { href: string; icon: React.ReactNode; label: string; muted?: boolean }) {
+
+function DiagnosticInvite() {
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="card-soft flex flex-col gap-2 p-4" style={{ opacity: muted ? 0.7 : 1 }}>
-      <span style={{ color: "var(--primary)" }}>{icon}</span>
-      <span className="text-sm font-semibold text-foreground">{label}</span>
-    </a>
+    <div className="px-6 pt-16 animate-fade-up">
+      <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
+        Primer paso
+      </p>
+      <h1 className="mt-2 text-[28px] leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+        Antes de comenzar, quiero escucharte.
+      </h1>
+      <p className="mt-3 text-[15px] text-muted-foreground">
+        Unas preguntas breves nos permiten preparar tu protocolo a partir de las
+        señales que tu cuerpo está mostrando ahora.
+      </p>
+      <Link to="/quiz" className="btn-primary mt-8">
+        Comenzar el diagnóstico
+      </Link>
+    </div>
   );
 }
