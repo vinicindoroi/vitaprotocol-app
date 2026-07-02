@@ -35,6 +35,93 @@ export type Database = {
         }
         Relationships: []
       }
+      day_step_completions: {
+        Row: {
+          completed_at: string
+          day_number: number
+          id: string
+          step: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          day_number: number
+          id?: string
+          step: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          day_number?: number
+          id?: string
+          step?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journey_reflection: {
+        Row: {
+          bloating_after: number | null
+          bloating_before: number | null
+          clothes_after: number | null
+          clothes_before: number | null
+          created_at: string
+          energy_after: number | null
+          energy_before: number | null
+          id: string
+          mood_after: number | null
+          mood_before: number | null
+          selfesteem_after: number | null
+          selfesteem_before: number | null
+          sleep_after: number | null
+          sleep_before: number | null
+          updated_at: string
+          user_id: string
+          wellbeing_after: number | null
+          wellbeing_before: number | null
+        }
+        Insert: {
+          bloating_after?: number | null
+          bloating_before?: number | null
+          clothes_after?: number | null
+          clothes_before?: number | null
+          created_at?: string
+          energy_after?: number | null
+          energy_before?: number | null
+          id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          selfesteem_after?: number | null
+          selfesteem_before?: number | null
+          sleep_after?: number | null
+          sleep_before?: number | null
+          updated_at?: string
+          user_id: string
+          wellbeing_after?: number | null
+          wellbeing_before?: number | null
+        }
+        Update: {
+          bloating_after?: number | null
+          bloating_before?: number | null
+          clothes_after?: number | null
+          clothes_before?: number | null
+          created_at?: string
+          energy_after?: number | null
+          energy_before?: number | null
+          id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          selfesteem_after?: number | null
+          selfesteem_before?: number | null
+          sleep_after?: number | null
+          sleep_before?: number | null
+          updated_at?: string
+          user_id?: string
+          wellbeing_after?: number | null
+          wellbeing_before?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           country: string
