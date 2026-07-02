@@ -149,6 +149,7 @@ function Dashboard() {
           params={{ day: String(currentDay) }}
           className="tap mt-6 flex items-center justify-between rounded-2xl px-4 py-3"
           style={{ background: "var(--muted)" }}
+          data-tour="next-step"
         >
           <div className="min-w-0">
             <p
