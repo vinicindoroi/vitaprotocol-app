@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useProfile, useCompletions } from "@/hooks/use-profile";
 import { JourneyStages } from "@/components/journey-stages";
+import { TutorialWizard } from "@/components/tutorial-wizard";
+import { JOURNEY_TOUR } from "@/data/tours";
 import { getStage } from "@/data/journey";
 
 export const Route = createFileRoute("/_authenticated/progress")({
@@ -18,6 +20,7 @@ function JourneyPage() {
 
   return (
     <div className="px-5 pt-10 pb-6 animate-fade-up">
+      <TutorialWizard steps={JOURNEY_TOUR} storageKey="vp.tour.journey.v1" />
       <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
         Tu jornada
       </p>
@@ -26,11 +29,11 @@ function JourneyPage() {
       </h1>
       <p className="mt-1.5 text-[14px] text-muted-foreground">{stage.subtitle}.</p>
 
-      <section className="mt-8">
+      <section className="mt-8" data-tour="journey-stages">
         <JourneyStages currentDay={currentDay} quizCompleted={profile.quiz_completed} />
       </section>
 
-      <section className="mt-10">
+      <section className="mt-10" data-tour="journey-dots">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           Los 30 días
         </p>

@@ -5,6 +5,8 @@ import { HORMONES, type HormoneKey } from "@/data/hormones";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { UPGRADE_URL, SUPPORT_EMAIL } from "@/lib/config";
+import { TutorialWizard } from "@/components/tutorial-wizard";
+import { PROFILE_TOUR } from "@/data/tours";
 import { LogOut, KeyRound, Bell, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -47,6 +49,7 @@ function ProfilePage() {
 
   return (
     <div className="px-5 pt-8 pb-6 animate-fade-up">
+      <TutorialWizard steps={PROFILE_TOUR} storageKey="vp.tour.profile.v1" />
       <header className="flex items-center gap-4">
         <div className="flex h-16 w-16 items-center justify-center rounded-full text-2xl font-semibold" style={{ background: "var(--primary-soft)", color: "var(--primary)" }}>
           {initial}

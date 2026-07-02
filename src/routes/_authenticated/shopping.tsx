@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useProfile } from "@/hooks/use-profile";
 import { SHOPPING_LISTS } from "@/data/shopping-lists";
 import { LockedCard } from "@/components/locked-card";
+import { TutorialWizard } from "@/components/tutorial-wizard";
+import { SHOPPING_TOUR } from "@/data/tours";
 
 export const Route = createFileRoute("/_authenticated/shopping")({
   component: ShoppingPage,
@@ -41,10 +43,11 @@ function ShoppingPage() {
 
   return (
     <div className="px-5 pt-8 pb-6 animate-fade-up">
+      <TutorialWizard steps={SHOPPING_TOUR} storageKey="vp.tour.shopping.v1" />
       <h1 className="text-[24px] text-foreground" style={{ fontFamily: "var(--font-display)" }}>Lista de compras</h1>
       <p className="mt-1 text-sm text-muted-foreground">{data.title}</p>
 
-      <div className="mt-5 grid grid-cols-4 gap-2">
+      <div className="mt-5 grid grid-cols-4 gap-2" data-tour="shopping-weeks">
         {[1, 2, 3, 4].map((w) => (
           <button
             key={w}
@@ -60,7 +63,7 @@ function ShoppingPage() {
         ))}
       </div>
 
-      <div className="mt-6 space-y-5">
+      <div className="mt-6 space-y-5" data-tour="shopping-list">
         {data.categories.map((cat) => (
           <div key={cat.name}>
             <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{cat.name}</h3>
