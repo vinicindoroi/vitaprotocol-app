@@ -50,7 +50,7 @@ function Dashboard() {
     <div className="px-5 pt-12 pb-6 space-y-7">
       <TutorialWizard />
       {/* Saludo — editorial */}
-      <header className="animate-fade-up">
+      <header className="animate-fade-up" data-tour="hero">
         <p
           className="text-[11px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "rgba(45,106,79,0.6)" }}
@@ -71,6 +71,8 @@ function Dashboard() {
           </span>
         </h1>
       </header>
+
+
 
       {/* Card principal: 5 pilares */}
       <section
