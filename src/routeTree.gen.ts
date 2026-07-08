@@ -22,6 +22,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedJourneyCompleteRouteImport } from './routes/_authenticated/journey-complete'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedProtocolIndexRouteImport } from './routes/_authenticated/protocol/index'
+import { Route as AuthenticatedShoppingProductIdRouteImport } from './routes/_authenticated/shopping.$productId'
 import { Route as AuthenticatedProtocolDayRouteImport } from './routes/_authenticated/protocol/$day'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -90,6 +91,12 @@ const AuthenticatedProtocolIndexRoute =
     path: '/protocol/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedShoppingProductIdRoute =
+  AuthenticatedShoppingProductIdRouteImport.update({
+    id: '/$productId',
+    path: '/$productId',
+    getParentRoute: () => AuthenticatedShoppingRoute,
+  } as any)
 const AuthenticatedProtocolDayRoute =
   AuthenticatedProtocolDayRouteImport.update({
     id: '/protocol/$day',
@@ -108,8 +115,9 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
   '/quiz': typeof AuthenticatedQuizRoute
-  '/shopping': typeof AuthenticatedShoppingRoute
+  '/shopping': typeof AuthenticatedShoppingRouteWithChildren
   '/protocol/$day': typeof AuthenticatedProtocolDayRoute
+  '/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
   '/protocol/': typeof AuthenticatedProtocolIndexRoute
 }
 export interface FileRoutesByTo {
@@ -123,8 +131,9 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
   '/quiz': typeof AuthenticatedQuizRoute
-  '/shopping': typeof AuthenticatedShoppingRoute
+  '/shopping': typeof AuthenticatedShoppingRouteWithChildren
   '/protocol/$day': typeof AuthenticatedProtocolDayRoute
+  '/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
   '/protocol': typeof AuthenticatedProtocolIndexRoute
 }
 export interface FileRoutesById {
@@ -140,8 +149,9 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/progress': typeof AuthenticatedProgressRoute
   '/_authenticated/quiz': typeof AuthenticatedQuizRoute
-  '/_authenticated/shopping': typeof AuthenticatedShoppingRoute
+  '/_authenticated/shopping': typeof AuthenticatedShoppingRouteWithChildren
   '/_authenticated/protocol/$day': typeof AuthenticatedProtocolDayRoute
+  '/_authenticated/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
   '/_authenticated/protocol/': typeof AuthenticatedProtocolIndexRoute
 }
 export interface FileRouteTypes {
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/shopping'
     | '/protocol/$day'
+    | '/shopping/$productId'
     | '/protocol/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/shopping'
     | '/protocol/$day'
+    | '/shopping/$productId'
     | '/protocol'
   id:
     | '__root__'
@@ -190,6 +202,7 @@ export interface FileRouteTypes {
     | '/_authenticated/quiz'
     | '/_authenticated/shopping'
     | '/_authenticated/protocol/$day'
+    | '/_authenticated/shopping/$productId'
     | '/_authenticated/protocol/'
   fileRoutesById: FileRoutesById
 }
@@ -295,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProtocolIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/shopping/$productId': {
+      id: '/_authenticated/shopping/$productId'
+      path: '/$productId'
+      fullPath: '/shopping/$productId'
+      preLoaderRoute: typeof AuthenticatedShoppingProductIdRouteImport
+      parentRoute: typeof AuthenticatedShoppingRoute
+    }
     '/_authenticated/protocol/$day': {
       id: '/_authenticated/protocol/$day'
       path: '/protocol/$day'
@@ -305,13 +325,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedShoppingRouteChildren {
+  AuthenticatedShoppingProductIdRoute: typeof AuthenticatedShoppingProductIdRoute
+}
+
+const AuthenticatedShoppingRouteChildren: AuthenticatedShoppingRouteChildren = {
+  AuthenticatedShoppingProductIdRoute: AuthenticatedShoppingProductIdRoute,
+}
+
+const AuthenticatedShoppingRouteWithChildren =
+  AuthenticatedShoppingRoute._addFileChildren(
+    AuthenticatedShoppingRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedJourneyCompleteRoute: typeof AuthenticatedJourneyCompleteRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
   AuthenticatedQuizRoute: typeof AuthenticatedQuizRoute
-  AuthenticatedShoppingRoute: typeof AuthenticatedShoppingRoute
+  AuthenticatedShoppingRoute: typeof AuthenticatedShoppingRouteWithChildren
   AuthenticatedProtocolDayRoute: typeof AuthenticatedProtocolDayRoute
   AuthenticatedProtocolIndexRoute: typeof AuthenticatedProtocolIndexRoute
 }
@@ -322,7 +355,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProgressRoute: AuthenticatedProgressRoute,
   AuthenticatedQuizRoute: AuthenticatedQuizRoute,
-  AuthenticatedShoppingRoute: AuthenticatedShoppingRoute,
+  AuthenticatedShoppingRoute: AuthenticatedShoppingRouteWithChildren,
   AuthenticatedProtocolDayRoute: AuthenticatedProtocolDayRoute,
   AuthenticatedProtocolIndexRoute: AuthenticatedProtocolIndexRoute,
 }
