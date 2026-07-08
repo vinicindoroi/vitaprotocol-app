@@ -140,7 +140,7 @@ function ProductPage() {
           Lo que incluye
         </h2>
         <ul className="mt-3 space-y-2.5">
-          {product.highlights.map((h) => (
+          {product.highlights.map((h: string) => (
             <li key={h} className="flex items-start gap-3">
               <span
                 className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
@@ -166,7 +166,7 @@ function ProductPage() {
             Ingredientes
           </h2>
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {product.ingredients.map((ing) => (
+            {product.ingredients.map((ing: string) => (
               <span
                 key={ing}
                 className="rounded-full px-3 py-1 text-[12px]"
