@@ -207,10 +207,9 @@
 
 /* Glass surface used by floating bottom nav */
 .glass {
-  background: rgba(255,255,255,0.78);
-  backdrop-filter: saturate(140%) blur(18px);
-  -webkit-backdrop-filter: saturate(140%) blur(18px);
-  border: 1px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: saturate(180%) blur(28px);
+  border: 1px solid rgba(255,255,255,0.55);
 }
 
 a[href*="lovable.dev"],
