@@ -1,29 +1,32 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Calendar, Compass, ShoppingCart, User } from "lucide-react";
+import { useLang } from "@/i18n";
 
 const items = [
-  { to: "/dashboard", label: "Hoy", Icon: Home },
-  { to: "/protocol", label: "Protocolo", Icon: Calendar },
-  { to: "/progress", label: "Jornada", Icon: Compass },
-  { to: "/shopping", label: "Compras", Icon: ShoppingCart },
-  { to: "/profile", label: "Perfil", Icon: User },
+  { to: "/dashboard", key: "nav_today", Icon: Home },
+  { to: "/protocol", key: "nav_protocol", Icon: Calendar },
+  { to: "/progress", key: "nav_journey", Icon: Compass },
+  { to: "/shopping", key: "nav_shopping", Icon: ShoppingCart },
+  { to: "/profile", key: "nav_profile", Icon: User },
 ] as const;
 
 export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { t, pick } = useLang();
   return (
     <div
       className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4"
       style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
     >
       <nav
-        aria-label="Navegación principal"
+        aria-label={pick("Navegación principal", "Main navigation")}
         data-tour="nav"
         className="glass pointer-events-auto flex w-full max-w-[420px] items-center justify-around rounded-full px-2 py-2"
         style={{ boxShadow: "var(--shadow-float)" }}
       >
-        {items.map(({ to, label, Icon }) => {
+        {items.map(({ to, key, Icon }) => {
           const active = pathname === to || pathname.startsWith(to + "/");
+          const label = t(key);
           return (
             <Link
               key={to}

@@ -1,5 +1,7 @@
-import { STAGES, type JourneyStage } from "@/data/journey";
+import { type JourneyStage } from "@/data/journey";
 import { Check } from "lucide-react";
+import { useContent } from "@/i18n/content";
+import { useLang } from "@/i18n";
 
 interface Props {
   currentDay: number;
@@ -7,7 +9,8 @@ interface Props {
 }
 
 export function JourneyStages({ currentDay, quizCompleted }: Props) {
-  const activeIdx = getActiveIndex(currentDay, quizCompleted);
+  const { stages } = useContent();
+  const activeIdx = getActiveIndex(currentDay, quizCompleted, stages);
   return (
     <div className="relative">
       <div
@@ -15,7 +18,7 @@ export function JourneyStages({ currentDay, quizCompleted }: Props) {
         style={{ background: "var(--border)" }}
       />
       <ul className="space-y-5">
-        {STAGES.map((s, i) => {
+        {stages.map((s, i) => {
           const state: "past" | "current" | "future" =
             i < activeIdx ? "past" : i === activeIdx ? "current" : "future";
           return <StageRow key={s.key} stage={s} state={state} />;
@@ -26,6 +29,7 @@ export function JourneyStages({ currentDay, quizCompleted }: Props) {
 }
 
 function StageRow({ stage, state }: { stage: JourneyStage; state: "past" | "current" | "future" }) {
+  const { pick } = useLang();
   const color =
     state === "current" ? "var(--primary)" : state === "past" ? "var(--accent)" : "var(--muted-foreground)";
   return (
@@ -55,7 +59,7 @@ function StageRow({ stage, state }: { stage: JourneyStage; state: "past" | "curr
         <p className="text-[12.5px] text-muted-foreground">{stage.subtitle}</p>
         {state === "current" && (
           <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
-            Estás aquí
+            {pick("Estás aquí", "You are here")}
           </p>
         )}
       </div>
@@ -63,10 +67,10 @@ function StageRow({ stage, state }: { stage: JourneyStage; state: "past" | "curr
   );
 }
 
-function getActiveIndex(day: number, quizCompleted: boolean): number {
+function getActiveIndex(day: number, quizCompleted: boolean, stages: JourneyStage[]): number {
   if (!quizCompleted) return 0;
-  for (let i = STAGES.length - 1; i >= 0; i--) {
-    if (day >= STAGES[i].from) return i;
+  for (let i = stages.length - 1; i >= 0; i--) {
+    if (day >= stages[i].from) return i;
   }
   return 0;
 }
