@@ -1,12 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { QUIZ, scoreQuiz } from "@/data/quiz";
-import { HORMONES, type HormoneKey } from "@/data/hormones";
+import { scoreQuiz } from "@/data/quiz";
+import { type HormoneKey } from "@/data/hormones";
 import { SofiaMessage } from "@/components/sofia-message";
 import { supabase } from "@/integrations/supabase/client";
 import { profileQueryKey } from "@/hooks/use-profile";
 import { toast } from "sonner";
+import { useLang } from "@/i18n";
+import { useContent } from "@/i18n/content";
 
 export const Route = createFileRoute("/_authenticated/quiz")({
   component: QuizPage,
@@ -15,6 +17,8 @@ export const Route = createFileRoute("/_authenticated/quiz")({
 type Phase = "questions" | "listening" | "preparing" | "result";
 
 function QuizPage() {
+  const { pick } = useLang();
+  const { quiz: QUIZ, hormones: HORMONES } = useContent();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [phase, setPhase] = useState<Phase>("questions");
@@ -48,7 +52,7 @@ function QuizPage() {
     })();
   }, [phase, answers, qc]);
 
-  function pick(optIdx: number) {
+  function selectOption(optIdx: number) {
     const next = [...answers];
     next[step] = optIdx;
     setAnswers(next);
@@ -68,8 +72,8 @@ function QuizPage() {
             style={{ fontFamily: "var(--font-display)" }}
           >
             {phase === "listening"
-              ? "Estamos identificando qué señales está mostrando tu cuerpo…"
-              : "Tu protocolo se está preparando…"}
+              ? pick("Estamos identificando qué señales está mostrando tu cuerpo…", "We're identifying the signals your body is showing…")
+              : pick("Tu protocolo se está preparando…", "Your protocol is being prepared…")}
           </p>
         </div>
       </div>
@@ -81,13 +85,13 @@ function QuizPage() {
     return (
       <div className="min-h-[100dvh] px-6 pt-12 pb-10 animate-fade-up">
         <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
-          Diagnóstico listo
+          {pick("Diagnóstico listo", "Diagnostic ready")}
         </p>
         <h1
           className="mt-2 text-[26px] leading-tight text-foreground"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Tu cuerpo está pidiendo trabajar sobre:
+          {pick("Tu cuerpo está pidiendo trabajar sobre:", "Your body is asking to work on:")}
         </h1>
         <div className="card-soft mt-6 p-6">
           <div
@@ -101,8 +105,11 @@ function QuizPage() {
 
         <div className="mt-6">
           <SofiaMessage>
-            <p>Hoy empieza tu camino.</p>
-            <p>Vamos paso a paso, en secuencia. Tu cuerpo sabe responder cuando recibe las señales correctas.</p>
+            <p>{pick("Hoy empieza tu camino.", "Today your journey begins.")}</p>
+            <p>{pick(
+              "Vamos paso a paso, en secuencia. Tu cuerpo sabe responder cuando recibe las señales correctas.",
+              "We'll go step by step, in sequence. Your body knows how to respond when it receives the right signals.",
+            )}</p>
           </SofiaMessage>
         </div>
 
@@ -110,7 +117,7 @@ function QuizPage() {
           onClick={() => nav({ to: "/dashboard" })}
           className="btn-primary mt-8"
         >
-          Comenzar el Día 1
+          {pick("Comenzar el Día 1", "Start Day 1")}
         </button>
       </div>
     );
@@ -133,7 +140,7 @@ function QuizPage() {
 
       <div className="animate-fade-up flex-1" key={step}>
         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Pregunta {step + 1} de {QUIZ.length}
+          {pick("Pregunta", "Question")} {step + 1} {pick("de", "of")} {QUIZ.length}
         </p>
         <h2
           className="mt-4 text-[26px] leading-snug text-foreground"
@@ -148,7 +155,7 @@ function QuizPage() {
             return (
               <button
                 key={i}
-                onClick={() => pick(i)}
+                onClick={() => selectOption(i)}
                 className="w-full rounded-xl border-[1.5px] px-4 py-4 text-left text-[15.5px] leading-snug transition-all"
                 style={{
                   borderColor: isSel ? "var(--primary)" : "var(--border)",
@@ -168,7 +175,7 @@ function QuizPage() {
           onClick={() => setStep((s) => s - 1)}
           className="mt-6 self-start text-[13px] font-medium text-muted-foreground"
         >
-          ← Anterior
+          {pick("← Anterior", "← Previous")}
         </button>
       )}
     </div>

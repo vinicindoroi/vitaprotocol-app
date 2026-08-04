@@ -4,25 +4,31 @@ import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/integrations/supabase/client";
 import { SofiaMessage } from "@/components/sofia-message";
 import { toast } from "sonner";
+import { useLang } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/journey-complete")({
   component: JourneyCompletePage,
 });
 
-const DIMENSIONS = [
-  { key: "energy",     label: "Energía" },
-  { key: "sleep",      label: "Sueño" },
-  { key: "bloating",   label: "Hinchazón" },
-  { key: "wellbeing",  label: "Bienestar" },
-  { key: "clothes",    label: "Cómo te queda la ropa" },
-  { key: "mood",       label: "Humor" },
-  { key: "selfesteem", label: "Autoestima" },
-] as const;
+function useDimensions() {
+  const { pick } = useLang();
+  return [
+    { key: "energy", label: pick("Energía", "Energy") },
+    { key: "sleep", label: pick("Sueño", "Sleep") },
+    { key: "bloating", label: pick("Hinchazón", "Bloating") },
+    { key: "wellbeing", label: pick("Bienestar", "Well-being") },
+    { key: "clothes", label: pick("Cómo te queda la ropa", "How your clothes fit") },
+    { key: "mood", label: pick("Humor", "Mood") },
+    { key: "selfesteem", label: pick("Autoestima", "Self-esteem") },
+  ] as const;
+}
 
-type Dim = typeof DIMENSIONS[number]["key"];
+type Dim = ReturnType<typeof useDimensions>[number]["key"];
 
 function JourneyCompletePage() {
   const { data: profile } = useProfile();
+  const { pick } = useLang();
+  const DIMENSIONS = useDimensions();
   const [phase, setPhase] = useState<"letter" | "reflect" | "done">("letter");
   const [before, setBefore] = useState<Record<Dim, number>>(() => ({} as any));
   const [after, setAfter] = useState<Record<Dim, number>>(() => ({} as any));
@@ -51,20 +57,20 @@ function JourneyCompletePage() {
     return (
       <div className="min-h-[100dvh] px-6 pt-14 pb-10 animate-fade-up">
         <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
-          Día 30 · Cierre
+          {pick("Día 30 · Cierre", "Day 30 · Wrap-up")}
         </p>
         <h1 className="mt-3 text-[28px] leading-tight" style={{ fontFamily: "var(--font-display)" }}>
-          Llegaste{firstName ? `, ${firstName}` : ""}.
+          {pick(`Llegaste${firstName ? `, ${firstName}` : ""}.`, `You made it${firstName ? `, ${firstName}` : ""}.`)}
         </h1>
         <div className="mt-6">
           <SofiaMessage>
-            <p>Si llegaste hasta aquí, quiero que recuerdes una cosa.</p>
-            <p>Al comienzo tal vez creías que necesitabas una dieta más.</p>
-            <p>Hoy espero que hayas entendido que tu cuerpo solo necesitaba seguir el orden correcto.</p>
+            <p>{pick("Si llegaste hasta aquí, quiero que recuerdes una cosa.", "If you made it this far, I want you to remember one thing.")}</p>
+            <p>{pick("Al comienzo tal vez creías que necesitabas una dieta más.", "At the start you may have thought you needed yet another diet.")}</p>
+            <p>{pick("Hoy espero que hayas entendido que tu cuerpo solo necesitaba seguir el orden correcto.", "Today I hope you understand that your body just needed to follow the right order.")}</p>
           </SofiaMessage>
         </div>
         <button onClick={() => setPhase("reflect")} className="btn-primary mt-8">
-          Mirar mi cambio
+          {pick("Mirar mi cambio", "See my change")}
         </button>
       </div>
     );
@@ -77,10 +83,10 @@ function JourneyCompletePage() {
           <span className="text-2xl text-white">✓</span>
         </div>
         <h1 className="mt-6 text-[24px]" style={{ fontFamily: "var(--font-display)" }}>
-          Tu jornada quedó registrada.
+          {pick("Tu jornada quedó registrada.", "Your journey has been recorded.")}
         </h1>
         <p className="mt-3 text-[14px] text-muted-foreground">
-          Vuelve cuando quieras a leer lo que aprendiste sobre tu cuerpo.
+          {pick("Vuelve cuando quieras a leer lo que aprendiste sobre tu cuerpo.", "Come back anytime to read what you learned about your body.")}
         </p>
       </div>
     );
@@ -89,10 +95,10 @@ function JourneyCompletePage() {
   return (
     <div className="px-6 pt-10 pb-10 animate-fade-up">
       <h1 className="text-[24px] leading-tight" style={{ fontFamily: "var(--font-display)" }}>
-        ¿Cómo estabas entonces? ¿Y ahora?
+        {pick("¿Cómo estabas entonces? ¿Y ahora?", "How were you then? And now?")}
       </h1>
       <p className="mt-2 text-[13px] text-muted-foreground">
-        Sin números en la balanza. Solo cómo se siente tu cuerpo.
+        {pick("Sin números en la balanza. Solo cómo se siente tu cuerpo.", "No numbers on a scale. Just how your body feels.")}
       </p>
 
       <div className="mt-8 space-y-6">
@@ -100,12 +106,12 @@ function JourneyCompletePage() {
           <div key={d.key}>
             <p className="text-[14px] font-semibold text-foreground">{d.label}</p>
             <ScaleRow
-              caption="Día 1"
+              caption={pick("Día 1", "Day 1")}
               value={before[d.key]}
               onChange={(v) => setBefore({ ...before, [d.key]: v })}
             />
             <ScaleRow
-              caption="Hoy"
+              caption={pick("Hoy", "Today")}
               value={after[d.key]}
               onChange={(v) => setAfter({ ...after, [d.key]: v })}
             />
@@ -114,7 +120,7 @@ function JourneyCompletePage() {
       </div>
 
       <button onClick={save} disabled={saving} className="btn-primary mt-10">
-        {saving ? "Guardando…" : "Guardar mi cierre"}
+        {saving ? pick("Guardando…", "Saving…") : pick("Guardar mi cierre", "Save my wrap-up")}
       </button>
     </div>
   );

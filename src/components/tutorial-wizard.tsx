@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, ArrowRight, ArrowLeft } from "lucide-react";
+import { useLang } from "@/i18n";
 
 const DEFAULT_STORAGE_KEY = "vp.tutorial.v3";
 
@@ -13,87 +14,122 @@ export type TourStep = {
   padding?: number;
 };
 
-const DASHBOARD_STEPS: TourStep[] = [
-  {
-    eyebrow: "Bienvenida",
-    title: "Te voy a mostrar cómo usar tu protocolo.",
-    body: "Son 8 pasos muy cortos. Vas a ver, en la propia pantalla, para qué sirve cada parte de la app.",
-  },
-  {
-    target: "[data-tour='hero']",
-    eyebrow: "Tu saludo diario",
-    title: "Aquí sabes en qué día estás.",
-    body: "Cada mañana la app te recibe con tu nombre, el día actual y la etapa de la jornada en la que te encuentras.",
-    placement: "bottom",
-  },
-  {
-    target: "[data-tour='today']",
-    eyebrow: "El día de hoy",
-    title: "Este es tu bloque principal.",
-    body: "Todo lo que necesitas hoy vive dentro de esta tarjeta: los cinco pilares, tu avance y el siguiente paso.",
-    placement: "bottom",
-  },
-  {
-    target: "[data-tour='pillars']",
-    eyebrow: "Los cinco pilares",
-    title: "Toca cada ícono cuando lo completes.",
-    body: "Nutrir, Ritmo, Mover, Descanso y Agua. Se vuelven verdes con un check al marcarlos. No importa el orden.",
-    placement: "bottom",
-  },
-  {
-    target: "[data-tour='progress']",
-    eyebrow: "Tu progreso",
-    title: "Este porcentaje sigue tu día.",
-    body: "Sube a medida que marcas los pilares. Cuando llega al 100%, tu cuerpo recibió todas las señales del día.",
-    placement: "bottom",
-    padding: 12,
-  },
-  {
-    target: "[data-tour='next-step']",
-    eyebrow: "Siguiente paso",
-    title: "Toca aquí para ver el detalle.",
-    body: "Abre el Protocolo del día: cada pilar con su explicación, el “¿Por qué esto?” y el sello de Camila.",
-    placement: "top",
-  },
-  {
-    target: "[data-tour='journey']",
-    eyebrow: "Tu jornada",
-    title: "Las cinco etapas de 30 días.",
-    body: "Diagnóstico, Reequilibrio, Activación, Transformación y Consolidación. Toca la tarjeta para ver todo el camino.",
-    placement: "top",
-  },
-  {
-    target: "[data-tour='camila']",
-    eyebrow: "Visión de Camila",
-    title: "La ciencia detrás de cada gesto.",
-    body: "Camila te da la explicación clínica. Sofía, en el Protocolo diario, te acompaña con la parte emocional.",
-    placement: "top",
-  },
-  {
-    target: "[data-tour='nav']",
-    eyebrow: "Moverte en la app",
-    title: "Todo vive en esta barra.",
-    body: "Hoy · Protocolo · Jornada · Compras · Perfil. Vuelve cada día — la app abre siempre en el día correcto.",
-    placement: "top",
-    padding: 14,
-  },
-  {
-    eyebrow: "Listo",
-    title: "Nos vemos mañana temprano.",
-    body: "Un día no cuenta, treinta transforman. Empieza por el primer pilar cuando estés lista.",
-  },
-];
+function useDashboardSteps(): TourStep[] {
+  const { pick } = useLang();
+  return [
+    {
+      eyebrow: pick("Bienvenida", "Welcome"),
+      title: pick("Te voy a mostrar cómo usar tu protocolo.", "I'll show you how to use your protocol."),
+      body: pick(
+        "Son 8 pasos muy cortos. Vas a ver, en la propia pantalla, para qué sirve cada parte de la app.",
+        "It's 8 quick steps. You'll see, right on screen, what each part of the app is for."
+      ),
+    },
+    {
+      target: "[data-tour='hero']",
+      eyebrow: pick("Tu saludo diario", "Your daily greeting"),
+      title: pick("Aquí sabes en qué día estás.", "Here you know what day you're on."),
+      body: pick(
+        "Cada mañana la app te recibe con tu nombre, el día actual y la etapa de la jornada en la que te encuentras.",
+        "Every morning the app greets you with your name, the current day, and the journey stage you're in."
+      ),
+      placement: "bottom",
+    },
+    {
+      target: "[data-tour='today']",
+      eyebrow: pick("El día de hoy", "Today"),
+      title: pick("Este es tu bloque principal.", "This is your main block."),
+      body: pick(
+        "Todo lo que necesitas hoy vive dentro de esta tarjeta: los cinco pilares, tu avance y el siguiente paso.",
+        "Everything you need today lives inside this card: the five pillars, your progress, and the next step."
+      ),
+      placement: "bottom",
+    },
+    {
+      target: "[data-tour='pillars']",
+      eyebrow: pick("Los cinco pilares", "The five pillars"),
+      title: pick("Toca cada ícono cuando lo completes.", "Tap each icon when you complete it."),
+      body: pick(
+        "Nutrir, Ritmo, Mover, Descanso y Agua. Se vuelven verdes con un check al marcarlos. No importa el orden.",
+        "Nourish, Rhythm, Move, Rest, and Water. They turn green with a check when marked. Order doesn't matter."
+      ),
+      placement: "bottom",
+    },
+    {
+      target: "[data-tour='progress']",
+      eyebrow: pick("Tu progreso", "Your progress"),
+      title: pick("Este porcentaje sigue tu día.", "This percentage tracks your day."),
+      body: pick(
+        "Sube a medida que marcas los pilares. Cuando llega al 100%, tu cuerpo recibió todas las señales del día.",
+        "It rises as you mark the pillars. When it reaches 100%, your body has received all of today's signals."
+      ),
+      placement: "bottom",
+      padding: 12,
+    },
+    {
+      target: "[data-tour='next-step']",
+      eyebrow: pick("Siguiente paso", "Next step"),
+      title: pick("Toca aquí para ver el detalle.", "Tap here to see the details."),
+      body: pick(
+        "Abre el Protocolo del día: cada pilar con su explicación, el “¿Por qué esto?” y el sello de Camila.",
+        "Opens the day's Protocol: each pillar with its explanation, the \"Why this?\" and Camila's note."
+      ),
+      placement: "top",
+    },
+    {
+      target: "[data-tour='journey']",
+      eyebrow: pick("Tu jornada", "Your journey"),
+      title: pick("Las cinco etapas de 30 días.", "The five stages of 30 days."),
+      body: pick(
+        "Diagnóstico, Reequilibrio, Activación, Transformación y Consolidación. Toca la tarjeta para ver todo el camino.",
+        "Diagnosis, Rebalancing, Activation, Transformation, and Consolidation. Tap the card to see the whole path."
+      ),
+      placement: "top",
+    },
+    {
+      target: "[data-tour='camila']",
+      eyebrow: pick("Visión de Camila", "Camila's insight"),
+      title: pick("La ciencia detrás de cada gesto.", "The science behind every habit."),
+      body: pick(
+        "Camila te da la explicación clínica. Sofía, en el Protocolo diario, te acompaña con la parte emocional.",
+        "Camila gives you the clinical explanation. Sofia, in the daily Protocol, supports you emotionally."
+      ),
+      placement: "top",
+    },
+    {
+      target: "[data-tour='nav']",
+      eyebrow: pick("Moverte en la app", "Getting around the app"),
+      title: pick("Todo vive en esta barra.", "Everything lives in this bar."),
+      body: pick(
+        "Hoy · Protocolo · Jornada · Compras · Perfil. Vuelve cada día — la app abre siempre en el día correcto.",
+        "Today · Protocol · Journey · Shop · Profile. Come back every day — the app always opens on the right day."
+      ),
+      placement: "top",
+      padding: 14,
+    },
+    {
+      eyebrow: pick("Listo", "All set"),
+      title: pick("Nos vemos mañana temprano.", "See you early tomorrow."),
+      body: pick(
+        "Un día no cuenta, treinta transforman. Empieza por el primer pilar cuando estés lista.",
+        "One day doesn't count, thirty transform. Start with the first pillar whenever you're ready."
+      ),
+    },
+  ];
+}
 
 type Rect = { top: number; left: number; width: number; height: number };
 
 export function TutorialWizard({
-  steps = DASHBOARD_STEPS,
+  steps,
   storageKey = DEFAULT_STORAGE_KEY,
 }: {
   steps?: TourStep[];
   storageKey?: string;
 } = {}) {
-  const STEPS = steps;
+  const { pick } = useLang();
+  const dashboardSteps = useDashboardSteps();
+  const STEPS = steps ?? dashboardSteps;
   const STORAGE_KEY = storageKey;
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
@@ -222,7 +258,7 @@ export function TutorialWizard({
       className="fixed inset-0 z-[100] animate-fade-in"
       role="dialog"
       aria-modal="true"
-      aria-label="Tutorial"
+      aria-label={pick("Tutorial", "Tutorial")}
       style={{ pointerEvents: "auto" }}
     >
       {/* SVG mask overlay with cutout */}
@@ -300,7 +336,7 @@ export function TutorialWizard({
           <button
             type="button"
             onClick={close}
-            aria-label="Saltar tutorial"
+            aria-label={pick("Saltar tutorial", "Skip tutorial")}
             className="tap -mr-1 -mt-1 flex h-8 w-8 items-center justify-center rounded-full"
             style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}
           >
@@ -343,7 +379,7 @@ export function TutorialWizard({
               <button
                 type="button"
                 onClick={prev}
-                aria-label="Anterior"
+                aria-label={pick("Anterior", "Previous")}
                 className="tap flex h-10 w-10 items-center justify-center rounded-full"
                 style={{
                   background: "var(--muted)",
@@ -362,7 +398,7 @@ export function TutorialWizard({
                 boxShadow: "0 10px 22px -10px rgba(45,106,79,0.6)",
               }}
             >
-              {i === STEPS.length - 1 ? "Comenzar" : "Siguiente"}
+              {i === STEPS.length - 1 ? pick("Comenzar", "Start") : pick("Siguiente", "Next")}
               <ArrowRight size={14} />
             </button>
           </div>

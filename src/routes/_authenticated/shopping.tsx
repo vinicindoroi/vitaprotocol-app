@@ -2,10 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useProfile } from "@/hooks/use-profile";
 import { SHOPPING_LISTS } from "@/data/shopping-lists";
-import { PRODUCTS } from "@/data/products";
 import { LockedCard } from "@/components/locked-card";
 import { TutorialWizard } from "@/components/tutorial-wizard";
-import { SHOPPING_TOUR } from "@/data/tours";
+import { useLang } from "@/i18n";
+import { useContent } from "@/i18n/content";
 import { ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/shopping")({
@@ -15,26 +15,28 @@ export const Route = createFileRoute("/_authenticated/shopping")({
 type Tab = "store" | "list";
 
 function ShoppingPage() {
+  const { pick } = useLang();
+  const { tours } = useContent();
   const { data: profile } = useProfile();
   const [tab, setTab] = useState<Tab>("store");
 
-  if (!profile) return <div className="px-6 pt-12 text-muted-foreground">Cargando…</div>;
+  if (!profile) return <div className="px-6 pt-12 text-muted-foreground">{pick("Cargando…", "Loading…")}</div>;
 
   return (
     <div className="px-5 pt-8 pb-6 animate-fade-up">
-      <TutorialWizard steps={SHOPPING_TOUR} storageKey="vp.tour.shopping.v2" />
+      <TutorialWizard steps={tours.shopping} storageKey="vp.tour.shopping.v2" />
 
       <p
         className="text-[11px] font-semibold uppercase tracking-[0.18em]"
         style={{ color: "rgba(45,106,79,0.6)" }}
       >
-        Compras
+        {pick("Compras", "Shopping")}
       </p>
       <h1
         className="mt-1 text-[26px] leading-[1.15]"
         style={{ fontFamily: "var(--font-display)", color: "var(--primary-deep)" }}
       >
-        Todo lo que <span className="italic" style={{ color: "var(--primary)" }}>tu cuerpo pide</span>.
+        {pick("Todo lo que", "Everything")} <span className="italic" style={{ color: "var(--primary)" }}>{pick("tu cuerpo pide", "your body is asking for")}</span>.
       </h1>
 
       <div
@@ -43,8 +45,8 @@ function ShoppingPage() {
       >
         {(
           [
-            { id: "store", label: "Tienda" },
-            { id: "list", label: "Lista" },
+            { id: "store", label: pick("Tienda", "Store") },
+            { id: "list", label: pick("Lista", "List") },
           ] as const
         ).map((t) => (
           <button
@@ -67,6 +69,8 @@ function ShoppingPage() {
 }
 
 function StoreTab() {
+  const { pick } = useLang();
+  const { products: PRODUCTS } = useContent();
   return (
     <div className="mt-6 space-y-4" data-tour="store-grid">
       {PRODUCTS.map((p, i) => (
@@ -149,6 +153,7 @@ function StoreTab() {
 }
 
 function ShoppingListTab({ plan }: { plan: string }) {
+  const { pick } = useLang();
   const [week, setWeek] = useState(1);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const storageKey = `shopping_week_${week}`;
@@ -191,7 +196,7 @@ function ShoppingListTab({ plan }: { plan: string }) {
               color: w === week ? "var(--primary-foreground)" : "var(--primary)",
             }}
           >
-            Sem. {w}
+            {pick("Sem.", "Wk.")} {w}
           </button>
         ))}
       </div>
@@ -235,10 +240,10 @@ function ShoppingListTab({ plan }: { plan: string }) {
 
       <div className="mt-7 grid grid-cols-2 gap-3">
         <button onClick={markAll} className="btn-primary">
-          Marcar todos
+          {pick("Marcar todos", "Mark all")}
         </button>
         <button onClick={clear} className="btn-outline">
-          Limpiar lista
+          {pick("Limpiar lista", "Clear list")}
         </button>
       </div>
     </div>

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Check, HelpCircle, ChevronDown } from "lucide-react";
 import { CamilaNote } from "./camila-note";
 import type { StepContent, StepKey } from "@/data/protocol-steps";
-import { STEP_META } from "@/data/protocol-steps";
+import { useContent } from "@/i18n/content";
+import { useLang } from "@/i18n";
 
 interface Props {
   step: StepKey;
@@ -14,7 +15,9 @@ interface Props {
 
 export function DayStepCard({ step, content, done, onToggle, index }: Props) {
   const [openWhy, setOpenWhy] = useState(false);
-  const meta = STEP_META[step];
+  const { stepMeta } = useContent();
+  const { pick } = useLang();
+  const meta = stepMeta[step];
   return (
     <div
       className="rounded-2xl border bg-card p-4 transition-all"
@@ -53,10 +56,10 @@ export function DayStepCard({ step, content, done, onToggle, index }: Props) {
           {done ? (
             <>
               <Check size={16} className="animate-scale-in" strokeWidth={3} />
-              Concluido
+              {pick("Concluido", "Done")}
             </>
           ) : (
-            "Concluir"
+            pick("Concluir", "Mark done")
           )}
         </button>
         <button
@@ -66,7 +69,7 @@ export function DayStepCard({ step, content, done, onToggle, index }: Props) {
           aria-expanded={openWhy}
         >
           <HelpCircle size={14} />
-          ¿Por qué?
+          {pick("¿Por qué?", "Why?")}
           <ChevronDown size={12} style={{ transform: openWhy ? "rotate(180deg)" : "none", transition: "transform 200ms" }} />
         </button>
       </div>

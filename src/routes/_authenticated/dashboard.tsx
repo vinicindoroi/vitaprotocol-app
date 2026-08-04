@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useProfile } from "@/hooks/use-profile";
 import { useAllStepCompletions } from "@/hooks/use-day-steps";
-import { DAY_STEPS, STEP_ORDER, STEP_META, type StepKey } from "@/data/protocol-steps";
-import { getStage } from "@/data/journey";
+import { STEP_ORDER, type StepKey } from "@/data/protocol-steps";
 import { UPGRADE_URL } from "@/lib/config";
 import { TutorialWizard } from "@/components/tutorial-wizard";
+import { useLang } from "@/i18n";
+import { useContent } from "@/i18n/content";
 import { ArrowRight, Lock, Check, Salad, Sparkles, Footprints, Moon, Droplet } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -20,30 +21,32 @@ const STEP_ICONS: Record<StepKey, LucideIcon> = {
   water: Droplet,
 };
 
-const STEP_SHORT: Record<StepKey, string> = {
-  food: "Nutrir",
-  habit: "Ritmo",
-  movement: "Mover",
-  sleep: "Descanso",
-  water: "Agua",
-};
-
 function Dashboard() {
+  const { pick } = useLang();
+  const { daySteps, stepMeta, stageFor } = useContent();
   const { data: profile, isLoading } = useProfile();
   const { data: completions = [] } = useAllStepCompletions();
-  if (isLoading || !profile) return <div className="px-6 pt-12 text-muted-foreground">Cargando…</div>;
+  if (isLoading || !profile) return <div className="px-6 pt-12 text-muted-foreground">{pick("Cargando…", "Loading…")}</div>;
 
   if (!profile.quiz_completed) return <DiagnosticInvite />;
 
+  const STEP_SHORT: Record<StepKey, string> = {
+    food: pick("Nutrir", "Nourish"),
+    habit: pick("Ritmo", "Rhythm"),
+    movement: pick("Mover", "Move"),
+    sleep: pick("Descanso", "Rest"),
+    water: pick("Agua", "Water"),
+  };
+
   const currentDay = Math.min(profile.current_day, 30);
-  const day = DAY_STEPS[currentDay - 1];
+  const day = daySteps[currentDay - 1];
   const firstName = (profile.full_name || "").split(" ")[0] || "";
-  const greeting = getGreeting();
+  const greeting = getGreeting(pick);
   const doneToday = new Set(
     completions.filter((c) => c.day_number === currentDay).map((c) => c.step),
   );
   const remaining = STEP_ORDER.filter((s) => !doneToday.has(s));
-  const stage = getStage(currentDay, profile.quiz_completed);
+  const stage = stageFor(currentDay, profile.quiz_completed);
   const progress = Math.round((STEP_ORDER.length - remaining.length) / STEP_ORDER.length * 100);
 
   return (
@@ -55,7 +58,7 @@ function Dashboard() {
           className="text-[11px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "rgba(45,106,79,0.6)" }}
         >
-          Día {currentDay} · {stage.label}
+          {pick("Día", "Day")} {currentDay} · {stage.label}
         </p>
         <h1
           className="mt-1.5 text-[28px] leading-[1.15]"
@@ -64,10 +67,10 @@ function Dashboard() {
           {greeting}{firstName ? `, ${firstName}` : ""}.<br />
           <span className="italic font-normal" style={{ color: "var(--primary)" }}>
             {remaining.length === 0
-              ? "hoy tu cuerpo recibió todo."
+              ? pick("hoy tu cuerpo recibió todo.", "today your body received everything it needed.")
               : remaining.length === STEP_ORDER.length
-              ? "empecemos con calma."
-              : "vas hermoso, sigue."}
+              ? pick("empecemos con calma.", "let's start calmly.")
+              : pick("vas hermoso, sigue.", "you're doing beautifully, keep going.")}
           </span>
         </h1>
       </header>
@@ -82,7 +85,7 @@ function Dashboard() {
       >
         <div className="flex items-center justify-between">
           <h2 className="text-[17px] font-semibold" style={{ color: "var(--primary-deep)" }}>
-            Tu día de hoy
+            {pick("Tu día de hoy", "Your day today")}
           </h2>
           <span
             className="rounded-full px-3 py-1 text-[11px] font-bold"
@@ -156,15 +159,15 @@ function Dashboard() {
               className="text-[10px] font-semibold uppercase tracking-[0.14em]"
               style={{ color: "var(--primary)" }}
             >
-              Siguiente paso
+              {pick("Siguiente paso", "Next step")}
             </p>
             <p
               className="mt-0.5 truncate text-[13px]"
               style={{ color: "var(--primary-deep)" }}
             >
               {remaining.length > 0
-                ? STEP_META[remaining[0]].label
-                : "Cerrar el día"}
+                ? stepMeta[remaining[0]].label
+                : pick("Cerrar el día", "Close out the day")}
             </p>
           </div>
           <ArrowRight size={16} style={{ color: "var(--primary)" }} />
@@ -177,7 +180,7 @@ function Dashboard() {
           className="mb-3 text-[19px]"
           style={{ fontFamily: "var(--font-display)", color: "var(--primary-deep)" }}
         >
-          Tu jornada de 30 días
+          {pick("Tu jornada de 30 días", "Your 30-day journey")}
         </h2>
         <Link
           to="/progress"
@@ -209,7 +212,7 @@ function Dashboard() {
                 className="text-[10px] font-bold uppercase tracking-[0.2em]"
                 style={{ color: "rgba(255,255,255,0.55)" }}
               >
-                Etapa actual
+                {pick("Etapa actual", "Current stage")}
               </p>
               <h3
                 className="mt-1 text-[20px] font-semibold text-white"
@@ -265,7 +268,7 @@ function Dashboard() {
               className="text-[10px] font-bold uppercase tracking-[0.16em] italic"
               style={{ color: "var(--primary)" }}
             >
-              Visión de Camila
+              {pick("Visión de Camila", "Camila's insight")}
             </p>
             <p
               className="text-[14px] leading-relaxed"
@@ -288,7 +291,7 @@ function Dashboard() {
           <div className="flex items-center gap-2">
             <Lock size={14} style={{ color: "var(--primary)" }} />
             <p className="text-[13px] font-semibold" style={{ color: "var(--primary-deep)" }}>
-              El protocolo continúa después del Día 7.
+              {pick("El protocolo continúa después del Día 7.", "The protocol continues after Day 7.")}
             </p>
           </div>
           <a
@@ -298,7 +301,7 @@ function Dashboard() {
             className="mt-1 inline-block text-[13px] font-semibold"
             style={{ color: "var(--primary)" }}
           >
-            Continuar la secuencia completa →
+            {pick("Continuar la secuencia completa →", "Continue the full sequence →")}
           </a>
         </section>
       )}
@@ -306,37 +309,40 @@ function Dashboard() {
   );
 }
 
-function getGreeting(): string {
+function getGreeting(pick: <T,>(es: T, en: T) => T): string {
   const h = new Date().getHours();
-  if (h < 12) return "Buenos días";
-  if (h < 19) return "Buenas tardes";
-  return "Buenas noches";
+  if (h < 12) return pick("Buenos días", "Good morning");
+  if (h < 19) return pick("Buenas tardes", "Good afternoon");
+  return pick("Buenas noches", "Good evening");
 }
 
 function DiagnosticInvite() {
+  const { pick } = useLang();
   return (
     <div className="px-6 pt-16 animate-fade-up">
       <p
         className="text-[11px] font-semibold uppercase tracking-[0.18em]"
         style={{ color: "var(--primary)" }}
       >
-        Primer paso
+        {pick("Primer paso", "First step")}
       </p>
       <h1
         className="mt-2 text-[30px] leading-tight"
         style={{ fontFamily: "var(--font-display)", color: "var(--primary-deep)" }}
       >
-        Antes de comenzar,{" "}
+        {pick("Antes de comenzar,", "Before we begin,")}{" "}
         <span className="italic" style={{ color: "var(--primary)" }}>
-          quiero escucharte.
+          {pick("quiero escucharte.", "I want to hear you out.")}
         </span>
       </h1>
       <p className="mt-4 text-[15px]" style={{ color: "var(--muted-foreground)" }}>
-        Unas preguntas breves nos permiten preparar tu protocolo a partir de las
-        señales que tu cuerpo está mostrando ahora.
+        {pick(
+          "Unas preguntas breves nos permiten preparar tu protocolo a partir de las señales que tu cuerpo está mostrando ahora.",
+          "A few brief questions let us prepare your protocol based on the signals your body is showing right now.",
+        )}
       </p>
       <Link to="/quiz" className="btn-primary mt-10">
-        Comenzar el diagnóstico
+        {pick("Comenzar el diagnóstico", "Start the diagnostic")}
       </Link>
     </div>
   );

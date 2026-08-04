@@ -14,15 +14,18 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerPWA } from "../lib/register-pwa";
 import { supabase } from "@/integrations/supabase/client";
+import { LanguageProvider, useLang } from "@/i18n";
+
 
 function NotFoundComponent() {
+  const { pick } = useLang();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-6xl font-bold text-primary">404</h1>
-        <p className="mt-3 text-muted-foreground">Esta página no existe.</p>
+        <p className="mt-3 text-muted-foreground">{pick("Esta página no existe.", "This page doesn't exist.")}</p>
         <Link to="/" className="btn-primary mt-6 inline-flex" style={{ maxWidth: 220 }}>
-          Volver al inicio
+          {pick("Volver al inicio", "Back to home")}
         </Link>
       </div>
     </div>
@@ -32,18 +35,20 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const { pick } = useLang();
   useEffect(() => { reportLovableError(error, { boundary: "root" }); }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold text-foreground">Algo salió mal</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Intenta de nuevo.</p>
+        <h1 className="text-xl font-semibold text-foreground">{pick("Algo salió mal", "Something went wrong")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{pick("Intenta de nuevo.", "Please try again.")}</p>
         <button onClick={() => { router.invalidate(); reset(); }} className="btn-primary mt-6" style={{ maxWidth: 220 }}>
-          Reintentar
+          {pick("Reintentar", "Retry")}
         </button>
       </div>
     </div>
   );
+
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -109,8 +114,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <LanguageProvider>
+        <Outlet />
+      </LanguageProvider>
       <Toaster position="top-center" richColors closeButton />
     </QueryClientProvider>
   );
 }
+
