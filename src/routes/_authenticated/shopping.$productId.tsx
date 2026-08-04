@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { getProduct, PRODUCTS } from "@/data/products";
-import { getProduct as getProductEn, PRODUCTS_EN } from "@/data/products.en";
+import { getProductEn, PRODUCTS_EN } from "@/data/products.en";
 import { useLang } from "@/i18n";
 import { ArrowLeft, Check, ShieldCheck, Truck } from "lucide-react";
 

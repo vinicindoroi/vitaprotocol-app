@@ -121,3 +121,7 @@ export const PRODUCTS_EN: Product[] = [
     ctaUrl: "https://example.com/checkout/kit-inicio",
   },
 ];
+
+export function getProductEn(id: string): Product | undefined {
+  return PRODUCTS_EN.find((p) => p.id === id);
+}
