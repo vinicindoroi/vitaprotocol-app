@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerPWA } from "../lib/register-pwa";
 import { supabase } from "@/integrations/supabase/client";
+import { LanguageProvider } from "@/i18n";
+
 
 function NotFoundComponent() {
   return (
