@@ -1,5 +1,7 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { getProduct, PRODUCTS } from "@/data/products";
+import { getProduct as getProductEn, PRODUCTS_EN } from "@/data/products.en";
+import { useLang } from "@/i18n";
 import { ArrowLeft, Check, ShieldCheck, Truck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/shopping/$productId")({
@@ -20,9 +22,10 @@ export const Route = createFileRoute("/_authenticated/shopping/$productId")({
   notFoundComponent: ProductNotFound,
   errorComponent: ({ error, reset }) => {
     const router = useRouter();
+    const { pick } = useLang();
     return (
       <div className="px-6 pt-16">
-        <p className="text-sm text-muted-foreground">Algo interrumpió la carga.</p>
+        <p className="text-sm text-muted-foreground">{pick("Algo interrumpió la carga.", "Something interrupted the loading.")}</p>
         <p className="mt-2 text-xs opacity-60">{error.message}</p>
         <button
           className="btn-primary mt-6"
@@ -31,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/shopping/$productId")({
             router.invalidate();
           }}
         >
-          Intentar de nuevo
+          {pick("Intentar de nuevo", "Try again")}
         </button>
       </div>
     );
@@ -39,8 +42,11 @@ export const Route = createFileRoute("/_authenticated/shopping/$productId")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
-  const related = PRODUCTS.filter((p) => p.id !== product.id).slice(0, 3);
+  const { pick } = useLang();
+  const { product: esProduct } = Route.useLoaderData();
+  const product = pick(esProduct, getProductEn(esProduct.id) ?? esProduct);
+  const relatedList = pick(PRODUCTS, PRODUCTS_EN);
+  const related = relatedList.filter((p) => p.id !== product.id).slice(0, 3);
   const isDark = product.accent.includes("2D6A4F") || product.accent.includes("1B3A2E");
 
   return (
@@ -51,7 +57,7 @@ function ProductPage() {
           to="/shopping"
           className="tap flex h-10 w-10 items-center justify-center rounded-full"
           style={{ background: "var(--primary-soft)", color: "var(--primary)" }}
-          aria-label="Volver a la tienda"
+          aria-label={pick("Volver a la tienda", "Back to the store")}
         >
           <ArrowLeft size={18} />
         </Link>
@@ -137,7 +143,7 @@ function ProductPage() {
           className="text-[11px] font-semibold uppercase tracking-[0.16em]"
           style={{ color: "var(--primary)" }}
         >
-          Lo que incluye
+          {pick("Lo que incluye", "What's included")}
         </h2>
         <ul className="mt-3 space-y-2.5">
           {product.highlights.map((h: string) => (
@@ -163,7 +169,7 @@ function ProductPage() {
             className="text-[11px] font-semibold uppercase tracking-[0.16em]"
             style={{ color: "var(--primary)" }}
           >
-            Ingredientes
+            {pick("Ingredientes", "Ingredients")}
           </h2>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {product.ingredients.map((ing: string) => (
@@ -189,7 +195,7 @@ function ProductPage() {
             className="text-[10px] font-bold uppercase tracking-[0.16em]"
             style={{ color: "var(--primary)" }}
           >
-            Cómo se usa
+            {pick("Cómo se usa", "How to use it")}
           </p>
           <p
             className="mt-1.5 text-[14px] leading-relaxed"
@@ -208,7 +214,7 @@ function ProductPage() {
         >
           <Truck size={16} style={{ color: "var(--primary)" }} />
           <p className="text-[11.5px]" style={{ color: "var(--primary-deep)" }}>
-            Envío en 48h
+            {pick("Envío en 48h", "Shipping in 48h")}
           </p>
         </div>
         <div
@@ -217,7 +223,7 @@ function ProductPage() {
         >
           <ShieldCheck size={16} style={{ color: "var(--primary)" }} />
           <p className="text-[11.5px]" style={{ color: "var(--primary-deep)" }}>
-            Devolución 30 días
+            {pick("Devolución 30 días", "30-day return")}
           </p>
         </div>
       </section>
@@ -228,7 +234,7 @@ function ProductPage() {
           className="text-[11px] font-semibold uppercase tracking-[0.16em]"
           style={{ color: "var(--primary)" }}
         >
-          También te puede acompañar
+          {pick("También te puede acompañar", "You might also like")}
         </h2>
         <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
           {related.map((r) => (
@@ -281,7 +287,7 @@ function ProductPage() {
           className="btn-primary pointer-events-auto max-w-[420px]"
           style={{ boxShadow: "var(--shadow-float)" }}
         >
-          Comprar ahora · ${product.price} {product.currency}
+          {pick("Comprar ahora", "Buy now")} · ${product.price} {product.currency}
         </a>
       </div>
       {/* Spacer para que el CTA no tape contenido */}
@@ -291,19 +297,20 @@ function ProductPage() {
 }
 
 function ProductNotFound() {
+  const { pick } = useLang();
   return (
     <div className="px-6 pt-16 animate-fade-up">
       <h1
         className="text-[24px]"
         style={{ fontFamily: "var(--font-display)", color: "var(--primary-deep)" }}
       >
-        Este producto ya no está disponible.
+        {pick("Este producto ya no está disponible.", "This product is no longer available.")}
       </h1>
       <p className="mt-2 text-[14px]" style={{ color: "var(--muted-foreground)" }}>
-        Vuelve a la tienda para ver el catálogo actualizado.
+        {pick("Vuelve a la tienda para ver el catálogo actualizado.", "Go back to the store to see the updated catalog.")}
       </p>
       <Link to="/shopping" className="btn-primary mt-8">
-        Ir a la tienda
+        {pick("Ir a la tienda", "Go to the store")}
       </Link>
     </div>
   );

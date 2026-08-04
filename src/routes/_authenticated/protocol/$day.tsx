@@ -3,24 +3,27 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useProfile, profileQueryKey } from "@/hooks/use-profile";
 import { useDaySteps, useToggleStep } from "@/hooks/use-day-steps";
-import { DAY_STEPS, STEP_ORDER } from "@/data/protocol-steps";
+import { STEP_ORDER } from "@/data/protocol-steps";
 import { DayStepCard } from "@/components/day-step-card";
 import { SofiaMessage } from "@/components/sofia-message";
 import { LockedCard } from "@/components/locked-card";
 import { supabase } from "@/integrations/supabase/client";
+import { useLang } from "@/i18n";
+import { useContent } from "@/i18n/content";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/protocol/$day")({
   component: ProtocolDayView,
 });
 
-const CLOSING_MESSAGES = [
-  "Tu cuerpo recibió las señales correctas hoy.",
-  "Un paso más concluido.",
-  "Continúa mañana. El protocolo funciona por consistencia.",
-];
-
 function ProtocolDayView() {
+  const { pick } = useLang();
+  const { daySteps: DAY_STEPS } = useContent();
+  const CLOSING_MESSAGES = [
+    pick("Tu cuerpo recibió las señales correctas hoy.", "Your body received the right signals today."),
+    pick("Un paso más concluido.", "One more step completed."),
+    pick("Continúa mañana. El protocolo funciona por consistencia.", "Continue tomorrow. The protocol works through consistency."),
+  ];
   const { day: dayStr } = Route.useParams();
   const day = parseInt(dayStr, 10);
   const { data: profile } = useProfile();
@@ -54,9 +57,9 @@ function ProtocolDayView() {
     if (!allComplete && wasComplete) setWasComplete(false);
   }, [allComplete, wasComplete, day, profile, qc, nav]);
 
-  if (!profile) return <div className="px-6 pt-12 text-muted-foreground">Cargando…</div>;
+  if (!profile) return <div className="px-6 pt-12 text-muted-foreground">{pick("Cargando…", "Loading…")}</div>;
   if (Number.isNaN(day) || day < 1 || day > 30) {
-    return <div className="px-6 pt-12">Día no válido.</div>;
+    return <div className="px-6 pt-12">{pick("Día no válido.", "Invalid day.")}</div>;
   }
 
   const content = DAY_STEPS[day - 1];
@@ -79,7 +82,7 @@ function ProtocolDayView() {
 
       <header className="mt-5">
         <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--primary)" }}>
-          Día {day} · Hoy
+          {pick("Día", "Day")} {day} · {pick("Hoy", "Today")}
         </p>
         <h1
           className="mt-1 text-[24px] leading-tight text-foreground"
@@ -111,7 +114,7 @@ function ProtocolDayView() {
             className="mt-3 w-full text-center text-[13px] text-muted-foreground"
             onClick={() => setShowClosing(false)}
           >
-            cerrar
+            {pick("cerrar", "close")}
           </button>
         </div>
       )}
@@ -123,7 +126,7 @@ function ProtocolDayView() {
             params={{ day: String(day - 1) }}
             className="flex items-center gap-1 text-[13px] font-medium text-muted-foreground"
           >
-            <ChevronLeft size={14} /> Día anterior
+            <ChevronLeft size={14} /> {pick("Día anterior", "Previous day")}
           </Link>
         ) : <span />}
         {day < 30 && day < profile.current_day ? (
@@ -133,7 +136,7 @@ function ProtocolDayView() {
             className="flex items-center gap-1 text-[13px] font-medium"
             style={{ color: "var(--primary)" }}
           >
-            Día siguiente <ChevronRight size={14} />
+            {pick("Día siguiente", "Next day")} <ChevronRight size={14} />
           </Link>
         ) : <span />}
       </div>
@@ -142,9 +145,10 @@ function ProtocolDayView() {
 }
 
 function BackBar() {
+  const { pick } = useLang();
   return (
     <Link to="/protocol" className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground">
-      <ChevronLeft size={14} /> Todos los días
+      <ChevronLeft size={14} /> {pick("Todos los días", "All days")}
     </Link>
   );
 }

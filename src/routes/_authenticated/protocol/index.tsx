@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useProfile, useCompletions } from "@/hooks/use-profile";
-import { PROTOCOL_DAYS } from "@/data/protocol-days";
 import { TutorialWizard } from "@/components/tutorial-wizard";
-import { PROTOCOL_TOUR } from "@/data/tours";
+import { useLang } from "@/i18n";
+import { useContent } from "@/i18n/content";
 import { Lock, Check, Circle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/protocol/")({
@@ -10,9 +10,11 @@ export const Route = createFileRoute("/_authenticated/protocol/")({
 });
 
 function ProtocolCalendar() {
+  const { pick } = useLang();
+  const { protocolDays: PROTOCOL_DAYS, tours } = useContent();
   const { data: profile } = useProfile();
   const { data: completions = [] } = useCompletions();
-  if (!profile) return <div className="px-6 pt-12 text-muted-foreground">Cargando…</div>;
+  if (!profile) return <div className="px-6 pt-12 text-muted-foreground">{pick("Cargando…", "Loading…")}</div>;
 
   const limit = profile.plan === "complete" ? 30 : 7;
   const done = new Set(completions);
@@ -20,9 +22,9 @@ function ProtocolCalendar() {
 
   return (
     <div className="px-5 pt-8 pb-6 animate-fade-up">
-      <TutorialWizard steps={PROTOCOL_TOUR} storageKey="vp.tour.protocol.v1" />
-      <h1 className="text-[24px] text-foreground" style={{ fontFamily: "var(--font-display)" }}>Tu protocolo</h1>
-      <p className="mt-1 text-sm text-muted-foreground">30 días paso a paso.</p>
+      <TutorialWizard steps={tours.protocol} storageKey="vp.tour.protocol.v1" />
+      <h1 className="text-[24px] text-foreground" style={{ fontFamily: "var(--font-display)" }}>{pick("Tu protocolo", "Your protocol")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{pick("30 días paso a paso.", "30 days, step by step.")}</p>
 
       <div className="mt-6 grid grid-cols-4 gap-3" data-tour="protocol-grid">
         {PROTOCOL_DAYS.map((d) => {
