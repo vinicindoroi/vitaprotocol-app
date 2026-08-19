@@ -55,7 +55,7 @@ export function HelpBalloon() {
 
       <button
         onClick={() => setOpen((v) => !v)}
-        className="tap flex h-14 w-14 items-center justify-center rounded-full"
+        className="tap animate-help-pulse flex h-14 w-14 items-center justify-center rounded-full"
         style={{
           background: "var(--primary)",
           color: "var(--primary-foreground)",
