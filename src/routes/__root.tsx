@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerPWA } from "../lib/register-pwa";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider, useLang } from "@/i18n";
+import { HelpBalloon } from "@/components/help-balloon";
 
 
 function NotFoundComponent() {
@@ -116,6 +117,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <Outlet />
+        <HelpBalloon />
       </LanguageProvider>
       <Toaster position="top-center" richColors closeButton />
     </QueryClientProvider>
