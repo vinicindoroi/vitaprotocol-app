@@ -17,6 +17,10 @@ export const DICT = {
     nav_shopping: "Compras",
     nav_profile: "Perfil",
     language: "Idioma",
+    help_title: "¿Necesitas ayuda?",
+    help_subtitle: "Escríbenos y te acompañamos.",
+    help_contact: "Contactar soporte",
+    help_close: "Cerrar",
   },
   en: {
     loading: "Loading…",
@@ -33,6 +37,10 @@ export const DICT = {
     nav_shopping: "Shop",
     nav_profile: "Profile",
     language: "Language",
+    help_title: "Need help?",
+    help_subtitle: "Write to us and we'll guide you.",
+    help_contact: "Contact support",
+    help_close: "Close",
   },
 } as const;
 
