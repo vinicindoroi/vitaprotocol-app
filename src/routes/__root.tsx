@@ -117,6 +117,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <Outlet />
+        <HelpBalloon />
       </LanguageProvider>
       <Toaster position="top-center" richColors closeButton />
     </QueryClientProvider>
