@@ -122,6 +122,7 @@ function ProfilePage() {
         <Row icon={<KeyRound size={18} />} label={pick("Cambiar contraseña", "Change password")} onClick={changePassword} />
         <Row icon={<Bell size={18} />} label={pick("Notificaciones (próximamente)", "Notifications (coming soon)")} onClick={() => toast.info(pick("Disponible pronto", "Available soon"))} />
         <Row icon={<FileText size={18} />} label={`${pick("Soporte", "Support")}: ${SUPPORT_EMAIL}`} onClick={() => (window.location.href = `mailto:${SUPPORT_EMAIL}`)} />
+        <Row icon={<Receipt size={18} />} label={pick("Solicitar reembolso", "Request a refund")} onClick={() => nav({ to: "/refund" })} />
         <Row icon={<LogOut size={18} />} label={pick("Cerrar sesión", "Sign out")} onClick={signOut} danger />
       </section>
 
