@@ -8,7 +8,7 @@ import { UPGRADE_URL, SUPPORT_EMAIL } from "@/lib/config";
 import { TutorialWizard } from "@/components/tutorial-wizard";
 import { useLang } from "@/i18n";
 import { useContent } from "@/i18n/content";
-import { LogOut, KeyRound, Bell, FileText } from "lucide-react";
+import { LogOut, KeyRound, Bell, FileText, Receipt } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -122,6 +122,7 @@ function ProfilePage() {
         <Row icon={<KeyRound size={18} />} label={pick("Cambiar contraseña", "Change password")} onClick={changePassword} />
         <Row icon={<Bell size={18} />} label={pick("Notificaciones (próximamente)", "Notifications (coming soon)")} onClick={() => toast.info(pick("Disponible pronto", "Available soon"))} />
         <Row icon={<FileText size={18} />} label={`${pick("Soporte", "Support")}: ${SUPPORT_EMAIL}`} onClick={() => (window.location.href = `mailto:${SUPPORT_EMAIL}`)} />
+        <Row icon={<Receipt size={18} />} label={pick("Solicitar reembolso", "Request a refund")} onClick={() => nav({ to: "/refund" })} />
         <Row icon={<LogOut size={18} />} label={pick("Cerrar sesión", "Sign out")} onClick={signOut} danger />
       </section>
 

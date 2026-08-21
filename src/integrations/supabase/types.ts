@@ -161,6 +161,57 @@ export type Database = {
         }
         Relationships: []
       }
+      refund_requests: {
+        Row: {
+          country: string
+          created_at: string
+          document_id: string
+          email: string
+          full_name: string
+          id: string
+          order_id: string
+          order_proof_path: string | null
+          payment_proof_path: string | null
+          phone: string
+          reason: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          document_id?: string
+          email: string
+          full_name: string
+          id?: string
+          order_id?: string
+          order_proof_path?: string | null
+          payment_proof_path?: string | null
+          phone?: string
+          reason?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          document_id?: string
+          email?: string
+          full_name?: string
+          id?: string
+          order_id?: string
+          order_proof_path?: string | null
+          payment_proof_path?: string | null
+          phone?: string
+          reason?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

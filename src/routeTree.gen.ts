@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedShoppingRouteImport } from './routes/_authenticated/shopping'
+import { Route as AuthenticatedRefundRouteImport } from './routes/_authenticated/refund'
 import { Route as AuthenticatedQuizRouteImport } from './routes/_authenticated/quiz'
 import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticated/progress'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -57,6 +58,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedShoppingRoute = AuthenticatedShoppingRouteImport.update({
   id: '/shopping',
   path: '/shopping',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRefundRoute = AuthenticatedRefundRouteImport.update({
+  id: '/refund',
+  path: '/refund',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedQuizRoute = AuthenticatedQuizRouteImport.update({
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
   '/quiz': typeof AuthenticatedQuizRoute
+  '/refund': typeof AuthenticatedRefundRoute
   '/shopping': typeof AuthenticatedShoppingRouteWithChildren
   '/protocol/$day': typeof AuthenticatedProtocolDayRoute
   '/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/progress': typeof AuthenticatedProgressRoute
   '/quiz': typeof AuthenticatedQuizRoute
+  '/refund': typeof AuthenticatedRefundRoute
   '/shopping': typeof AuthenticatedShoppingRouteWithChildren
   '/protocol/$day': typeof AuthenticatedProtocolDayRoute
   '/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/progress': typeof AuthenticatedProgressRoute
   '/_authenticated/quiz': typeof AuthenticatedQuizRoute
+  '/_authenticated/refund': typeof AuthenticatedRefundRoute
   '/_authenticated/shopping': typeof AuthenticatedShoppingRouteWithChildren
   '/_authenticated/protocol/$day': typeof AuthenticatedProtocolDayRoute
   '/_authenticated/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/progress'
     | '/quiz'
+    | '/refund'
     | '/shopping'
     | '/protocol/$day'
     | '/shopping/$productId'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/progress'
     | '/quiz'
+    | '/refund'
     | '/shopping'
     | '/protocol/$day'
     | '/shopping/$productId'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/progress'
     | '/_authenticated/quiz'
+    | '/_authenticated/refund'
     | '/_authenticated/shopping'
     | '/_authenticated/protocol/$day'
     | '/_authenticated/shopping/$productId'
@@ -264,6 +276,13 @@ declare module '@tanstack/react-router' {
       path: '/shopping'
       fullPath: '/shopping'
       preLoaderRoute: typeof AuthenticatedShoppingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/refund': {
+      id: '/_authenticated/refund'
+      path: '/refund'
+      fullPath: '/refund'
+      preLoaderRoute: typeof AuthenticatedRefundRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/quiz': {
@@ -344,6 +363,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
   AuthenticatedQuizRoute: typeof AuthenticatedQuizRoute
+  AuthenticatedRefundRoute: typeof AuthenticatedRefundRoute
   AuthenticatedShoppingRoute: typeof AuthenticatedShoppingRouteWithChildren
   AuthenticatedProtocolDayRoute: typeof AuthenticatedProtocolDayRoute
   AuthenticatedProtocolIndexRoute: typeof AuthenticatedProtocolIndexRoute
@@ -355,6 +375,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProgressRoute: AuthenticatedProgressRoute,
   AuthenticatedQuizRoute: AuthenticatedQuizRoute,
+  AuthenticatedRefundRoute: AuthenticatedRefundRoute,
   AuthenticatedShoppingRoute: AuthenticatedShoppingRouteWithChildren,
   AuthenticatedProtocolDayRoute: AuthenticatedProtocolDayRoute,
   AuthenticatedProtocolIndexRoute: AuthenticatedProtocolIndexRoute,
