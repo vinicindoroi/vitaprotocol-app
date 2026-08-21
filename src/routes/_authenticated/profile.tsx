@@ -8,7 +8,7 @@ import { UPGRADE_URL, SUPPORT_EMAIL } from "@/lib/config";
 import { TutorialWizard } from "@/components/tutorial-wizard";
 import { useLang } from "@/i18n";
 import { useContent } from "@/i18n/content";
-import { LogOut, KeyRound, Bell, FileText } from "lucide-react";
+import { LogOut, KeyRound, Bell, FileText, Receipt } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
