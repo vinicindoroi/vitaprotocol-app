@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AccessGate } from "@/components/access-gate";
 import { BottomNav } from "@/components/bottom-nav";
 import { supabase } from "@/integrations/supabase/client";
 
