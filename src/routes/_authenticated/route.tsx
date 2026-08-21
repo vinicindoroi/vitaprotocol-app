@@ -18,8 +18,10 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthedLayout() {
   return (
     <div className="app-shell with-bottom-nav">
-      <Outlet />
-      <BottomNav />
+      <AccessGate>
+        <Outlet />
+        <BottomNav />
+      </AccessGate>
     </div>
   );
 }
