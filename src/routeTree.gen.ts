@@ -25,7 +25,6 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedProtocolIndexRouteImport } from './routes/_authenticated/protocol/index'
 import { Route as AuthenticatedShoppingProductIdRouteImport } from './routes/_authenticated/shopping.$productId'
 import { Route as AuthenticatedProtocolDayRouteImport } from './routes/_authenticated/protocol/$day'
-import { Route as ApiPublicWebhooksPerfectpayRouteImport } from './routes/api/public/webhooks/perfectpay'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -110,12 +109,6 @@ const AuthenticatedProtocolDayRoute =
     path: '/protocol/$day',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const ApiPublicWebhooksPerfectpayRoute =
-  ApiPublicWebhooksPerfectpayRouteImport.update({
-    id: '/api/public/webhooks/perfectpay',
-    path: '/api/public/webhooks/perfectpay',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -133,7 +126,6 @@ export interface FileRoutesByFullPath {
   '/protocol/$day': typeof AuthenticatedProtocolDayRoute
   '/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
   '/protocol/': typeof AuthenticatedProtocolIndexRoute
-  '/api/public/webhooks/perfectpay': typeof ApiPublicWebhooksPerfectpayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -151,7 +143,6 @@ export interface FileRoutesByTo {
   '/protocol/$day': typeof AuthenticatedProtocolDayRoute
   '/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
   '/protocol': typeof AuthenticatedProtocolIndexRoute
-  '/api/public/webhooks/perfectpay': typeof ApiPublicWebhooksPerfectpayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -171,7 +162,6 @@ export interface FileRoutesById {
   '/_authenticated/protocol/$day': typeof AuthenticatedProtocolDayRoute
   '/_authenticated/shopping/$productId': typeof AuthenticatedShoppingProductIdRoute
   '/_authenticated/protocol/': typeof AuthenticatedProtocolIndexRoute
-  '/api/public/webhooks/perfectpay': typeof ApiPublicWebhooksPerfectpayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,7 +181,6 @@ export interface FileRouteTypes {
     | '/protocol/$day'
     | '/shopping/$productId'
     | '/protocol/'
-    | '/api/public/webhooks/perfectpay'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -209,7 +198,6 @@ export interface FileRouteTypes {
     | '/protocol/$day'
     | '/shopping/$productId'
     | '/protocol'
-    | '/api/public/webhooks/perfectpay'
   id:
     | '__root__'
     | '/'
@@ -228,7 +216,6 @@ export interface FileRouteTypes {
     | '/_authenticated/protocol/$day'
     | '/_authenticated/shopping/$productId'
     | '/_authenticated/protocol/'
-    | '/api/public/webhooks/perfectpay'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -238,7 +225,6 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  ApiPublicWebhooksPerfectpayRoute: typeof ApiPublicWebhooksPerfectpayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -355,13 +341,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProtocolDayRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/webhooks/perfectpay': {
-      id: '/api/public/webhooks/perfectpay'
-      path: '/api/public/webhooks/perfectpay'
-      fullPath: '/api/public/webhooks/perfectpay'
-      preLoaderRoute: typeof ApiPublicWebhooksPerfectpayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -412,7 +391,6 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  ApiPublicWebhooksPerfectpayRoute: ApiPublicWebhooksPerfectpayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

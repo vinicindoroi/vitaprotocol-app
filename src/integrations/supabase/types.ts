@@ -161,45 +161,6 @@ export type Database = {
         }
         Relationships: []
       }
-      purchase_access: {
-        Row: {
-          approved_at: string
-          email: string
-          full_name: string
-          id: string
-          order_code: string
-          plan: string
-          product_name: string
-          raw: Json | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          approved_at?: string
-          email: string
-          full_name?: string
-          id?: string
-          order_code?: string
-          plan?: string
-          product_name?: string
-          raw?: Json | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          approved_at?: string
-          email?: string
-          full_name?: string
-          id?: string
-          order_code?: string
-          plan?: string
-          product_name?: string
-          raw?: Json | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       refund_requests: {
         Row: {
           country: string
@@ -256,7 +217,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_purchase_access: { Args: { _email: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

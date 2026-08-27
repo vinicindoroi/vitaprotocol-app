@@ -1,5 +1,4 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { AccessGate } from "@/components/access-gate";
 import { BottomNav } from "@/components/bottom-nav";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -18,10 +17,8 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthedLayout() {
   return (
     <div className="app-shell with-bottom-nav">
-      <AccessGate>
-        <Outlet />
-        <BottomNav />
-      </AccessGate>
+      <Outlet />
+      <BottomNav />
     </div>
   );
 }
